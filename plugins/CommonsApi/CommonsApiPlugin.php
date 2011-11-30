@@ -9,13 +9,13 @@ require_once PLUGIN_DIR . '/RecordRelations/includes/models/RelatableRecord.php'
         protected $_filters = array();
         protected $_options = null;
         
-        public function install()
+        public function hookInstall()
         {
        
             
         }
         
-        public function uninstall()
+        public function hookUninstall()
         {
        
         }

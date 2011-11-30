@@ -8,6 +8,7 @@
 
 class CommonsApi_Importer
 {
+    public $response = array();
     private $installation;
     private $installation_url;
     private $db;
@@ -15,19 +16,20 @@ class CommonsApi_Importer
     
     public function __construct($data)
     {
-        
         $this->db = get_db();
+        
+        
+        Omeka_Context::getInstance()->setAcl(null);
+
         $this->validate($data);
         $this->key = $data['key'];
         $this->installation_url = $data['installation_url'];
         $installations = $this->db->getTable('Installation')->findBy(array('key'=>$data['key']));
-
         if($installations) {
             $installation = $installations[0];
         } else {
             $installation = new Installation();
         }
-
         foreach($data['installation'] as $key=>$value) {
             $installation->$key = $value;
         }
@@ -47,9 +49,8 @@ class CommonsApi_Importer
     
     public function processCollection($data)
     {
-        
         $collections = $this->db->getTable('InstallationCollection')->findBy(array(
-            															'installation_id'=>$this->installation_id,
+            															'installation_id'=>$this->installation->id,
             															'orig_id'=>$data['orig_id']
                                                                         )
                                                                     );
@@ -63,11 +64,11 @@ class CommonsApi_Importer
             $collection->$key = $value;
         }
         $collection->save();
+
     }
     
     public function processItem($data)
     {
-        
         
         $installationItems = $this->db->getTable('InstallationItem')->findBy(array(
         															'installation_id'=>$this->installation->id,
@@ -84,8 +85,9 @@ class CommonsApi_Importer
             $item = $installationItem->findItem();
             $this->updateItem($item, $data);
         }
+
         if(!empty($data['files'])) {
- // @TODO:          $this->processItemFiles($item, $data['files']);
+            $this->processItemFiles($item, $data['files']);
         }
         if(!empty($data['tags'])) {
             $this->processItemTags($item, $data['tags']);
@@ -93,6 +95,8 @@ class CommonsApi_Importer
         $installationItem->installation_id = $this->installation->id;
         $installationItem->orig_id = $data['orig_id'];
         $installationItem->item_id = $item->id;
+        $installationItem->url = $data['url'];
+        $installationItem->license = $data['license'];
         $installationItem->save();
 
         //update or add to collection information
@@ -108,7 +112,7 @@ class CommonsApi_Importer
             $collections = $this->db->getTable('RecordRelationsRelation')->findBy($options);
             
             $installationCollections = $this->db->getTable('InstallationCollection')->findBy(array(
-    															'installation_id'=>$this->installation_id,
+    															'installation_id'=>$this->installation->id,
     															'orig_id'=>$data['collection_orig_id']
                                                                 )
                                                             );
@@ -117,7 +121,7 @@ class CommonsApi_Importer
             if(empty($installationCollections)) {
                 $instCollection = new InstallationCollection();
                 $instCollection->orig_id = $data['collection_orig_id'];
-                $instCollection->installation_id = $this->installation_id;
+                $instCollection->installation_id = $this->installation->id;
                 $instCollection->save();
                 $relation = new RecordRelationsRelation();
                 $relation->property_id = $has_collection->id;
@@ -125,10 +129,12 @@ class CommonsApi_Importer
                 $relation->object_record_type = 'InstallationCollection';
                 $relation->subject_id = $installationItem->id;
                 $relation->object_id = $instCollection->id;
+                $relation->user_id = 1; //@TODO remove the magic number
                 $relation->save();
             }
             
         }
+        $this->response['status'] = 'success';
     }
     
     public function processExhibit($data)
@@ -163,13 +169,29 @@ class CommonsApi_Importer
         $this->processItemFiles($item, $fileData['url'] );
     }
                     
-    private function processItemFiles($item, $fileData)
+    private function processItemFiles($item, $filesData)
     {
+        //check if files have already been imported
+        $fileTable = $this->db->getTable('File');
+        foreach($filesData as $index=>$fileName) {
+            $select = $fileTable->getSelectForCount();
+            $select->where('original_filename = ?', $fileName );
+            $count = $this->db->fetchOne($select);
+            if($count != 0) {
+                unset($filesData[$index]);
+            }
+        }
         $transferStrategy = 'Url';
-        $options = array();
-        $result = insert_files_for_item($item, $transferStrategy, $fileData, $options);
+        $options = array( );
+
+        try {
+            $result = insert_files_for_item($item, $transferStrategy, $filesData, $options);
+        } catch (Exception $e) {
+                    _log($e->getMessage());
+                    _log($e->getTraceAsString());
+        }
     }
-    
+
     private function processItemTags($item, $tags)
     {
         $entity = $this->installation->getEntity();
@@ -182,15 +204,18 @@ class CommonsApi_Importer
         unset($itemMetadata['tags']);
         $itemElementTexts = $this->processItemElements($data);
         $item = insert_item($itemMetadata, $itemElementTexts);
+        $this->response['id'] = $item->id;
         return $item;
     }
     
     private function updateItem($item, $data)
     {
         $itemMetadata = $data;
+        $itemMetadata['overwriteElementTexts'] = true;
         unset($itemMetadata['tags']);
         $itemElementTexts = $this->processItemElements($data);
         update_item($item, $itemMetadata, $itemElementTexts);
+        $this->response['item_id'] = $item->id;
     }
     
     public function processItemElements($data)
@@ -283,10 +308,10 @@ class CommonsApi_Importer
     private function validate($data)
     {
         if(!is_array($data)) {
-            throw new Exception('Data is not an array');
+            throw new Exception('Importer: Data is not an array');
         }
         if(!isset($data['key']) || !isset($data['installation_url'])) {
-            throw new Exception('Data array not set');
+            throw new Exception('Importer: Data array not set');
         }
         
     }

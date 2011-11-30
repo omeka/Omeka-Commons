@@ -9,8 +9,6 @@ class CommonsApi_Test_AppTestCase extends Omeka_Test_AppTestCase
         $pluginHelper->setUp('RecordRelations');
         $pluginHelper->setUp('Installations');
         $pluginHelper->setUp('CommonsApi');
-        $user = $this->_getDefaultUser();
-        $this->_authenticateUser($user);
         $this->_setUpVocabs();
         $this->_setUpData();
         $this->_authenticateUser($this->_getDefaultUser());

@@ -2,4 +2,5 @@
 
 
 require_once PLUGIN_DIR . '/CommonsApi/CommonsApiPlugin.php';
-new CommonsApiPlugin();
+$commonsApi = new CommonsApiPlugin();
+$commonsApi->setUp();

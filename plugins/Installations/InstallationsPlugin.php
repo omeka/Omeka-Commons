@@ -11,13 +11,14 @@ if (class_exists('Omeka_Plugin_Abstract')) {
         protected $_filters = array();
         protected $_options = null;
         
-        public function install()
+        public function hookInstall()
         {
             $db = get_db();
             //Installation table
             $sql = "
             CREATE TABLE IF NOT EXISTS `$db->Installation` (
               `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+              `entity_id` int(10) unsigned NULL,
               `url` text NULL,
               `admin_email` text NULL,
               `title` text NULL,
@@ -102,7 +103,7 @@ if (class_exists('Omeka_Plugin_Abstract')) {
             
         }
         
-        public function uninstall()
+        public function hookUninstall()
         {
             $db = get_db();
             $sql = "DROP TABLE IF EXISTS `$db->Installation`,

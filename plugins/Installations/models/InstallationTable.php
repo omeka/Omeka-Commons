@@ -5,7 +5,7 @@ class InstallationTable extends Omeka_Db_Table
     
     protected $_alias = 'it';
     
-    public function _applySearchFilters($select, $params)
+    public function applySearchFilters($select, $params)
     {
         foreach($params as $field=>$value)
         {

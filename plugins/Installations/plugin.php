@@ -2,4 +2,5 @@
 
 
 require_once PLUGIN_DIR . '/Installations/InstallationsPlugin.php';
-new InstallationsPlugin();
+$installationsPlugin = new InstallationsPlugin();
+$installationsPlugin->setUp();
