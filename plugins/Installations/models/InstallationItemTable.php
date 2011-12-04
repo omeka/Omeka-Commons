@@ -15,6 +15,13 @@ class InstallationItemTable extends Omeka_Db_Table
         return $select;
     }
     
+    
+    public function findByInstallationIdAndOrigId($instId, $origId)
+    {
+        $select = $this->getSelectForFindBy(array('installation_id'=>$instId, 'orig_id'=>$origId));
+        return $this->fetchObject($select);
+    }
+        
     public function findItemBy($params)
     {
         $db = get_db();
@@ -30,8 +37,26 @@ class InstallationItemTable extends Omeka_Db_Table
         
     }
     
+    public function fetchForItemId($id)
+    {
+        $select = $this->getSelectForFindBy(array('item_id'=>$id));
+        return $this->fetchObject($select);
+    }
+    
     public function findItemForOriginalId($orig_id)
     {
+        
+    }
+    
+    public function fetchInstallationForItem($item_id)
+    {
+        
+        $installationsTable = $this->getTable('Installation');
+        $select = $installationsTable->getSelect();
+        $select->join(array('iit'=>$this->_db->InstallationItem), 'iit.installation_id = it.id', array());
+        $select->where("iit.item_id = ?", $item_id);
+        return $this->fetchObject($select);
+        
         
     }
     

@@ -46,35 +46,12 @@ class CommonsApi_Importer
         $this->installation->key = $this->key;
         $this->installation->save();
     }
-    
-    public function processCollection($data)
-    {
-        $collections = $this->db->getTable('InstallationCollection')->findBy(array(
-            															'installation_id'=>$this->installation->id,
-            															'orig_id'=>$data['orig_id']
-                                                                        )
-                                                                    );
-        if(empty($collections)) {
-            $collection = new InstallationCollection();
-        } else {
-            $collection = $collections[0];
-        }
-        $collection->installation_id = $this->installation->id;
-        foreach($data as $key=>$value) {
-            $collection->$key = $value;
-        }
-        $collection->save();
 
-    }
     
     public function processItem($data)
     {
-        
-        $installationItems = $this->db->getTable('InstallationItem')->findBy(array(
-        															'installation_id'=>$this->installation->id,
-        															'orig_id'=>$data['orig_id']
-                                                                    )
-                                                                );
+
+        $installationItems = $this->db->getTable('InstallationItem')->findByInstallationIdAndOrigId($this->installation->id, $data['orig_id']);
 
         if(empty($installationItems)) {
             $item = $this->importItem($data);
@@ -92,6 +69,7 @@ class CommonsApi_Importer
         if(!empty($data['tags'])) {
             $this->processItemTags($item, $data['tags']);
         }
+
         $installationItem->installation_id = $this->installation->id;
         $installationItem->orig_id = $data['orig_id'];
         $installationItem->item_id = $item->id;
@@ -100,33 +78,32 @@ class CommonsApi_Importer
         $installationItem->save();
 
         //update or add to collection information
-        if(isset($data['collection_orig_id'])) {
+
+        if(isset($data['collection'])) {
+
+            //collections are imported before items, so this should already exist
+            $instCollection = $this->db->getTable('InstallationContext_Collection')->findByInstallationIdAndOrigId($this->installation->id,$data['collection']);
             
             $has_collection = $this->db->getTable('RecordRelationsProperty')->findByVocabAndPropertyName(SIOC, 'has_container');
             $options = array(
                 'subject_record_type' => 'InstallationItem',
+                'subject_id' => $installationItem->id,
                 'object_record_type' => 'InstallationCollection',
+                'object_id' => $instCollection->id,
                 'property_id' => $has_collection->id
             );
-    
-            $collections = $this->db->getTable('RecordRelationsRelation')->findBy($options);
+
+            //use record relations here, so we can keep the history if a site
+            //changes the collection an item is in
             
-            $installationCollections = $this->db->getTable('InstallationCollection')->findBy(array(
-    															'installation_id'=>$this->installation->id,
-    															'orig_id'=>$data['collection_orig_id']
-                                                                )
-                                                            );
-                                                            
-                                                            
-            if(empty($installationCollections)) {
-                $instCollection = new InstallationCollection();
-                $instCollection->orig_id = $data['collection_orig_id'];
-                $instCollection->installation_id = $this->installation->id;
-                $instCollection->save();
+            //check if relation already exists
+            $relation = $this->db->getTable('RecordRelationsRelation')->findOne($options);
+
+            if($instCollection && !$relation) {
                 $relation = new RecordRelationsRelation();
                 $relation->property_id = $has_collection->id;
                 $relation->subject_record_type = 'InstallationItem';
-                $relation->object_record_type = 'InstallationCollection';
+                $relation->object_record_type = 'InstallationContext_Collection';
                 $relation->subject_id = $installationItem->id;
                 $relation->object_id = $instCollection->id;
                 $relation->user_id = 1; //@TODO remove the magic number
@@ -137,25 +114,22 @@ class CommonsApi_Importer
         $this->response['status'] = 'success';
     }
     
-    public function processExhibit($data)
+    public function processContext($data, $context)
     {
+        $contextRecord = $this->db->getTable('InstallationContext_' . $context)->findByInstallationIdAndOrigId($this->installation->id, $data['orig_id']);
+        if(!$contextRecord) {
+            $class = 'InstallationContext_' . $context;
+            $contextRecord = new $class();
+        }
         
-        $exhibits = $this->db->getTable('InstallationExhibit')->findBy(array(
-            															'installation_id'=>$this->installation->id,
-            															'orig_id'=>$data['orig_id']
-                                                                        )
-                                                                    );
-        if(empty($exhibits)) {
-            $exhibit = new InstallationExhibit();
-        } else {
-            $exhibit = $exhibits[0];
-        }
-        $exhibit->installation_id = $this->installation->id;
+        $contextRecord->installation_id = $this->installation->id;
         foreach($data as $key=>$value) {
-            $exhibit->$key = $value;
+            $contextRecord->$key = $value;
         }
-        $exhibit->save();
+        $contextRecord->save();
+        
     }
+    
 
     /**
      *
@@ -203,6 +177,8 @@ class CommonsApi_Importer
         $itemMetadata = $data;
         unset($itemMetadata['tags']);
         $itemElementTexts = $this->processItemElements($data);
+        $itemMetadata['public'] = true;
+
         $item = insert_item($itemMetadata, $itemElementTexts);
         $this->response['id'] = $item->id;
         return $item;
@@ -210,16 +186,19 @@ class CommonsApi_Importer
     
     private function updateItem($item, $data)
     {
+
         $itemMetadata = $data;
         $itemMetadata['overwriteElementTexts'] = true;
         unset($itemMetadata['tags']);
+        $itemMetadata['public'] = true;
         $itemElementTexts = $this->processItemElements($data);
         update_item($item, $itemMetadata, $itemElementTexts);
-        $this->response['item_id'] = $item->id;
+        $this->response['id'] = $item->id;
     }
     
     public function processItemElements($data)
     {
+
         //process ItemTypes and ItemType Metadata to make sure they all exist first
         $newElementTexts = array();
         foreach($data['elementTexts'] as $elSet=>$elTexts) {
@@ -238,27 +217,32 @@ class CommonsApi_Importer
     
     public function processItemType($data)
     {
+
         //data might be a string if we're doing a pull from installation, array if a push
         if(is_string($data)) {
             $itemTypeData = $this->parseInstallationItemTypeData($data);
         }
-        
+
         $itemTypesTable = $this->db->getTable('ItemType');
-        $itemTypes = $itemTypesTable->findByName($itemTypeData['name']);
-        
-        if(empty($itemTypes)) {
+        $itemType = $itemTypesTable->findByName($itemTypeData['name']);
+
+        if(!$itemType) {
             $itemType = $this->importItemType($itemTypeData);
         } else {
-            $itemType = $itemTypes[0];
+            
             if($itemType->name != $itemTypeData['name']) {
                 $itemType->name = $itemTypeData['name'];
             }
+            
             if( $itemType->description != $itemTypeData['description'] ) {
                 $itemType->description = $itemTypeData['description'];
             }
+
             $itemType->save();
+            
+            
         }
-        
+
         return $itemType;
         
     }

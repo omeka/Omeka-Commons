@@ -30,13 +30,13 @@ if (class_exists('Omeka_Plugin_Abstract')) {
               `copyright_info` text,
               `author_info` text NULL,
               PRIMARY KEY (`id`)
-            ) ENGINE=MyISAM ;
+            ) ENGINE=MyISAM CHARACTER SET utf8 COLLATE utf8_unicode_ci
             
             ";
             $db->query($sql);
             //InstallationCollection table
             $sql = "
-            CREATE TABLE IF NOT EXISTS `$db->InstallationCollection` (
+            CREATE TABLE IF NOT EXISTS `$db->InstallationContextCollection` (
               `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
               `installation_id` int(10) unsigned NOT NULL,
               `orig_id` int(10) unsigned NOT NULL,
@@ -44,14 +44,14 @@ if (class_exists('Omeka_Plugin_Abstract')) {
               `title` text NULL,
               `description` text NULL,
               PRIMARY KEY (`id`)
-            ) ENGINE=MyISAM ;
+            ) ENGINE=MyISAM CHARACTER SET utf8 COLLATE utf8_unicode_ci
             ";
                     
             $db->query($sql);
             
             //InstallationExhibit table
             $sql = "
-            CREATE TABLE IF NOT EXISTS `$db->InstallationExhibit` (
+            CREATE TABLE IF NOT EXISTS `$db->InstallationContextExhibit` (
               `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
               `installation_id` int(10) unsigned NOT NULL,
               `orig_id` int(10) unsigned NOT NULL,
@@ -59,8 +59,39 @@ if (class_exists('Omeka_Plugin_Abstract')) {
               `title` text NULL,
               `description` text NULL,
               PRIMARY KEY (`id`)
-            ) ENGINE=MyISAM ;
+            ) ENGINE=MyISAM CHARACTER SET utf8 COLLATE utf8_unicode_ci
             ";
+            
+            $db->query($sql);
+            
+            $sql = "
+            CREATE TABLE IF NOT EXISTS `$db->InstallationContextExhibitSection` (
+              `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+              `installation_id` int(10) unsigned NOT NULL,
+              `installation_exhibit_id` int(10) unsigned NOT NULL,
+              `orig_id` int(10) unsigned NOT NULL,
+              `url` text NULL,
+              `title` text NULL,
+              `description` text NULL,
+              PRIMARY KEY (`id`)
+            ) ENGINE=MyISAM CHARACTER SET utf8 COLLATE utf8_unicode_ci
+            ";
+
+            $db->query($sql);
+            
+            $sql = "
+            CREATE TABLE IF NOT EXISTS `$db->InstallationContextExhibitSectionPage` (
+              `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+              `installation_id` int(10) unsigned NOT NULL,
+              `installation_section_id` int(10) unsigned NOT NULL,
+              `orig_id` int(10) unsigned NOT NULL,
+              `url` text NULL,
+              `title` text NULL,
+              `description` text NULL,
+              PRIMARY KEY (`id`)
+            ) ENGINE=MyISAM CHARACTER SET utf8 COLLATE utf8_unicode_ci
+            ";
+            
             
             $db->query($sql);
             //InstallationItem table
@@ -73,7 +104,7 @@ if (class_exists('Omeka_Plugin_Abstract')) {
               `url` text NULL,
               `license` text NULL,
               PRIMARY KEY (`id`)
-            ) ENGINE=MyISAM ;
+            ) ENGINE=MyISAM CHARACTER SET utf8 COLLATE utf8_unicode_ci
             ";
             $db->query($sql);
       
@@ -101,16 +132,28 @@ if (class_exists('Omeka_Plugin_Abstract')) {
             $inst->copyright_info = "CC-BY";
             $inst->save();
             
+            
+            $blocks = unserialize(get_option('blocks'));
+            $blocks[] = 'CommonsOriginalInfoBlock';
+            set_option('blocks', serialize($blocks));
+            
         }
         
         public function hookUninstall()
         {
+
             $db = get_db();
+
             $sql = "DROP TABLE IF EXISTS `$db->Installation`,
-            		DROP TABLE IF EXISTS `$db->InstallationExhibit`,
-            		DROP TABLE IF EXISTS `$db->InstallationCollection`,
-            		DROP TABLE IF EXISTS `$db->InstallationItem`,
+            		`$db->InstallationContextExhibit`,
+            		`$db->InstallationContextExhibitSection`,
+            		`$db->InstallationContextExhibitPage`,
+            		`$db->InstallationContextCollection`,
+            		`$db->InstallationItem` ;
             ";
+            echo 'ok';
+echo $sql;
+            $db->exec($sql);
         }
         
         
