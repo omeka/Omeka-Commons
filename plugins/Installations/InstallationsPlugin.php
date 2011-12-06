@@ -7,7 +7,7 @@ if (class_exists('Omeka_Plugin_Abstract')) {
     class InstallationsPlugin extends Omeka_Plugin_Abstract
     {
         
-        protected $_hooks = array('install', 'uninstall');
+        protected $_hooks = array('install', 'uninstall', 'installation_browse_sql');
         protected $_filters = array();
         protected $_options = null;
         
@@ -151,12 +151,19 @@ if (class_exists('Omeka_Plugin_Abstract')) {
             		`$db->InstallationContextCollection`,
             		`$db->InstallationItem` ;
             ";
-            echo 'ok';
-echo $sql;
+          
             $db->exec($sql);
         }
         
-        
+        public function hookInstallationBrowseSql($select, $params)
+        {
+            if(isset($_GET['unapproved']) && $_GET['unapproved'] == true) {
+                $select->where('added IS NULL');
+            }
+_log($select);
+            return $select;
+        }
+  
         
     }
 } else {

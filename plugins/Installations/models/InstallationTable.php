@@ -7,9 +7,25 @@ class InstallationTable extends Omeka_Db_Table
     
     public function applySearchFilters($select, $params)
     {
-        foreach($params as $field=>$value)
+        $validParams = array(
+        	'id',
+            'url',
+            'admin_email',
+            'title',
+            'description',
+            'key',
+            'added',
+            'last_import',
+            'copyright_info',
+            'author_info',
+            'entity_id'
+        );
+        
+        foreach($validParams as $field)
         {
-            $select->where($this->_alias . ".$field = ? ", $value);
+            if(isset($params[$field])) {
+                $select->where($this->_alias . ".$field = ? ", $params[$field]);
+            }
         }
         return $select;
     }
