@@ -8,6 +8,7 @@
 
 class CommonsApi_Importer
 {
+    public $data = array();
     public $response = array();
     private $installation;
     private $installation_url;
