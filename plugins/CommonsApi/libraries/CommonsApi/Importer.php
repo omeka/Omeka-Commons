@@ -52,18 +52,17 @@ class CommonsApi_Importer
     public function processItem($data)
     {
 
-        $installationItems = $this->db->getTable('InstallationItem')->findByInstallationIdAndOrigId($this->installation->id, $data['orig_id']);
+        $installationItem = $this->db->getTable('InstallationItem')->findByInstallationIdAndOrigId($this->installation->id, $data['orig_id']);
 
-        if(empty($installationItems)) {
+        if($installationItem) {
+            $item = $installationItem->findItem();
+            $this->updateItem($item, $data);
+        } else {
             $item = $this->importItem($data);
             $installationItem = new InstallationItem();
             $installationItem->item_id = $item->id;
-        } else {
-            $installationItem = $installationItems[0];
-            $item = $installationItem->findItem();
-            $this->updateItem($item, $data);
         }
-
+        
         if(!empty($data['files'])) {
             $this->processItemFiles($item, $data['files']);
         }

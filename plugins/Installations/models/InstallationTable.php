@@ -5,30 +5,23 @@ class InstallationTable extends Omeka_Db_Table
     
     protected $_alias = 'it';
     
+    
     public function applySearchFilters($select, $params)
     {
-        $validParams = array(
-        	'id',
-            'url',
-            'admin_email',
-            'title',
-            'description',
-            'key',
-            'added',
-            'last_import',
-            'copyright_info',
-            'author_info',
-            'entity_id'
-        );
-        
-        foreach($validParams as $field)
-        {
-            if(isset($params[$field])) {
-                $select->where($this->_alias . ".$field = ? ", $params[$field]);
+        $columns = $this->getColumns();
+        foreach($columns as $column) {
+            if(array_key_exists($column, $params)) {
+                $select->where($this->_alias . ".$column = ? ", $params[$column]);
             }
         }
+        _log($select);
         return $select;
     }
     
+    public function findByUrlKey($url, $key)
+    {
+        $select = $this->getSelectForFindBy(array('url'=>$url, 'key'=>$key));
+        return $this->fetchObject($select);
+    }
     
 }

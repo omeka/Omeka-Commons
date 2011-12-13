@@ -4,11 +4,13 @@
 class InstallationContextTable extends Omeka_Db_Table
 {
     
-    public function _applySearchFilters($select, $params)
+    public function applySearchFilters($select, $params)
     {
-        foreach($params as $field=>$value)
-        {
-            $select->where($this->_alias . ".$field = ? ", $value);
+        $columns = $this->getColumns();
+        foreach($columns as $column) {
+            if(array_key_exists($column, $params)) {
+                $select->where($this->_alias . ".$column = ? ", $params[$column]);
+            }
         }
         return $select;
     }

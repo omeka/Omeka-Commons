@@ -52,8 +52,9 @@ class Installations_IndexController extends Omeka_Controller_Action
         
         $tokenUrl = $this->createTokenUrl($installation);
         $to = $installation->admin_email;
+        $from = get_option('administrator_email');
         $subject = "Omeka Commons participation approved!";
-        $message = "Thank you for participating in the Omeka Commons. blah blah blah
+        $body = "Thank you for participating in the Omeka Commons. blah blah blah
         You will need to enter your Omeka Commons API key into the configuration form
         of the Commons plugin you installed on your Omeka site.
         
@@ -68,14 +69,20 @@ class Installations_IndexController extends Omeka_Controller_Action
         
         ";
         
-        //return mail($to, $subject, $message);
+        $mail = new Zend_Mail();
+        $mail->setBodyText($body);
+        $mail->setFrom($from, "Omeka Commons");
+        $mail->addTo($to, $installation->title . " Administrator");
+        $mail->setSubject($subject);
+        $mail->addHeader('X-Mailer', 'PHP/' . phpversion());
+        $mail->send();
+
     }
     
     private function createTokenUrl($installation)
     {
         $token = sha1("tOkenS@1t" . microtime());
-        require_once HELPERS;
-        $tokenUrl = uri('installations/key') . "?token=" . $token;
+        $tokenUrl = WEB_ROOT . '/installations/index/key' . "?token=" . $token;
 
         $instToken = new InstallationToken();
 
