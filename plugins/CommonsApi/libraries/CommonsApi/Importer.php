@@ -1,10 +1,4 @@
 <?php
-/*
- * This will later be sorted out into a real importer. Now, it is mostly for testing and developing
- *
- *
- * process* methods decide whether it is an update or an import/insert, and branch as needed
- */
 
 class CommonsApi_Importer
 {
@@ -14,12 +8,12 @@ class CommonsApi_Importer
     private $installation_url;
     private $db;
     private $key;
-    
+
     public function __construct($data)
     {
         $this->db = get_db();
-        
-        
+
+
         Omeka_Context::getInstance()->setAcl(null);
 
         $this->validate($data);
@@ -37,7 +31,7 @@ class CommonsApi_Importer
         $installation->save();
         $this->installation = $installation;
     }
-    
+
     public function processInstallation($data)
     {
         foreach($data as $key=>$value) {
@@ -48,7 +42,7 @@ class CommonsApi_Importer
         $this->installation->save();
     }
 
-    
+
     public function processItem($data)
     {
 
@@ -62,7 +56,7 @@ class CommonsApi_Importer
             $installationItem = new InstallationItem();
             $installationItem->item_id = $item->id;
         }
-        
+
         if(!empty($data['files'])) {
             $this->processItemFiles($item, $data['files']);
         }
@@ -78,24 +72,23 @@ class CommonsApi_Importer
         $installationItem->save();
 
         //update or add to collection information
-
+        $has_container = $this->db->getTable('RecordRelationsProperty')->findByVocabAndPropertyName(SIOC, 'has_container');
         if(isset($data['collection'])) {
 
             //collections are imported before items, so this should already exist
             $instCollection = $this->db->getTable('InstallationContext_Collection')->findByInstallationIdAndOrigId($this->installation->id,$data['collection']);
-            
-            $has_collection = $this->db->getTable('RecordRelationsProperty')->findByVocabAndPropertyName(SIOC, 'has_container');
             $options = array(
                 'subject_record_type' => 'InstallationItem',
                 'subject_id' => $installationItem->id,
                 'object_record_type' => 'InstallationCollection',
                 'object_id' => $instCollection->id,
-                'property_id' => $has_collection->id
+                'property_id' => $has_container->id,
+                'user_id' => 1
             );
 
             //use record relations here, so we can keep the history if a site
             //changes the collection an item is in
-            
+
             //check if relation already exists
             $relation = $this->db->getTable('RecordRelationsRelation')->findOne($options);
 
@@ -109,11 +102,61 @@ class CommonsApi_Importer
                 $relation->user_id = 1; //@TODO remove the magic number
                 $relation->save();
             }
-            
+
         }
+
+        //build relations to exhibit data
+
+        if(isset($data['exhibitPages'])) {
+            $options = array(
+                'subject_record_type' => 'InstallationItem',
+                'subject_id' => $installationItem->id,
+                'object_record_type' => 'InstallationCollection',
+                'object_id' => $instCollection->id,
+                'property_id' => $has_container->id,
+                'user_id' => 1
+            );
+
+            foreach($data['exhibitPages'] as $pageId) {
+                $options['object_record_type'] = 'InstallationContext_ExhibitSectionPage';
+                $pageContext = $this->db->getTable('InstallationContext_ExhibitSectionPage')->findByInstallationIdAndOrigId($this->installation->id,$pageId);
+                $options['object_id'] = $pageContext->id;
+                $relation = $this->db->getTable('RecordRelationsRelation')->findOne($options);
+                if(!$relation) {
+                    $relation = new RecordRelationsRelation();
+                    $relation->setProps($options);
+                    $relation->save();
+                }
+
+                $sectionId = $pageContext->installation_section_id;
+
+                $options['object_record_type'] = 'InstallationContext_ExhibitSection';
+                $sectionContext = $this->db->getTable('InstallationContext_ExhibitSection')->findByInstallationIdAndOrigId($this->installation->id,$sectionId);
+                $options['object_id'] = $sectionContext->id;
+                $relation = $this->db->getTable('RecordRelationsRelation')->findOne($options);
+                if(!$relation) {
+                    $relation = new RecordRelationsRelation();
+                    $relation->setProps($options);
+                    $relation->save();
+                }
+
+                $exhibitId = $sectionContext->installation_exhibit_id;
+                $options['object_record_type'] = 'InstallationContext_Exhibit';
+                $exhibitContext = $this->db->getTable('InstallationContext_Exhibit')->findByInstallationIdAndOrigId($this->installation->id, $exhibitId);
+                $options['object_id'] = $exhibitContext->id;
+                $relation = $this->db->getTable('RecordRelationsRelation')->findOne($options);
+                if(!$relation) {
+                    $relation = new RecordRelationsRelation();
+                    $relation->setProps($options);
+                    $relation->save();
+                }
+            }
+
+        }
+
         $this->response['status'] = 'success';
     }
-    
+
     public function processContext($data, $context)
     {
         $contextRecord = $this->db->getTable('InstallationContext_' . $context)->findByInstallationIdAndOrigId($this->installation->id, $data['orig_id']);
@@ -121,28 +164,28 @@ class CommonsApi_Importer
             $class = 'InstallationContext_' . $context;
             $contextRecord = new $class();
         }
-        
+
         $contextRecord->installation_id = $this->installation->id;
         foreach($data as $key=>$value) {
             $contextRecord->$key = $value;
         }
         $contextRecord->save();
-        
+
     }
-    
+
 
     /**
      *
      * Used on a reported update to a file
      * @param array $fileData
      */
-    
+
     public function processFile($fileData)
     {
         $item = $this->db->getTable('InstallationItem')->findItemBy(array('orig_id'=>$fileData['item_orig_id']) );
         $this->processItemFiles($item, $fileData['url'] );
     }
-                    
+
     private function processItemFiles($item, $filesData)
     {
         //check if files have already been imported
@@ -171,7 +214,7 @@ class CommonsApi_Importer
         $entity = $this->installation->getEntity();
         $item->addTags($tags, $entity);
     }
-    
+
     private function importItem($data)
     {
         $itemMetadata = $data;
@@ -183,7 +226,7 @@ class CommonsApi_Importer
         $this->response['id'] = $item->id;
         return $item;
     }
-    
+
     private function updateItem($item, $data)
     {
 
@@ -195,7 +238,7 @@ class CommonsApi_Importer
         update_item($item, $itemMetadata, $itemElementTexts);
         $this->response['id'] = $item->id;
     }
-    
+
     public function processItemElements($data)
     {
 
@@ -214,7 +257,7 @@ class CommonsApi_Importer
         return $newElementTexts;
         //@TODO: prefix custom elements somewhere
     }
-    
+
     public function processItemType($data)
     {
 
@@ -229,24 +272,24 @@ class CommonsApi_Importer
         if(!$itemType) {
             $itemType = $this->importItemType($itemTypeData);
         } else {
-            
+
             if($itemType->name != $itemTypeData['name']) {
                 $itemType->name = $itemTypeData['name'];
             }
-            
+
             if( $itemType->description != $itemTypeData['description'] ) {
                 $itemType->description = $itemTypeData['description'];
             }
 
             $itemType->save();
-            
-            
+
+
         }
 
         return $itemType;
-        
+
     }
-    
+
     public function processItemTypeElements($itemType, $data)
     {
         //make sure the elements exist and are updated
@@ -258,10 +301,10 @@ class CommonsApi_Importer
                 $itemType->addElements($elementArray);
             }
         }
-        
+
         //@TODO: updating elements
     }
-    
+
     public function importItemType($itemTypeData)
     {
         $itemType = new ItemType();
@@ -272,11 +315,11 @@ class CommonsApi_Importer
         $itemType->save();
         return $itemType;
     }
-    
+
     private function parseInstallationItemTypeData($name, $description = null)
     {
         $returnArray = array();
-        
+
         //remove the 'Item Type Metadata' if it's there from how Commons exports
         $offset = strpos($name, ' Item Type Metadata');
         if($offset !== false) {
@@ -288,7 +331,7 @@ class CommonsApi_Importer
         }
         return $returnArray;
     }
-    
+
     private function validate($data)
     {
         if(!is_array($data)) {
@@ -297,6 +340,6 @@ class CommonsApi_Importer
         if(!isset($data['key']) || !isset($data['installation_url'])) {
             throw new Exception('Importer: Data array not set');
         }
-        
+
     }
 }

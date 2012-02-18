@@ -7,8 +7,6 @@ class InstallationItem extends Omeka_Record
     public $installation_id;
     public $orig_id;
     public $url;
-    public $license;
-    
 
     public function findItem()
     {

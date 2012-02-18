@@ -8,15 +8,15 @@ if (class_exists('Omeka_Plugin_Abstract')) {
     {
 
         protected $_hooks = array(
-        	'install',
-        	'uninstall',
-        	'installation_browse_sql',
-        	'public_theme_header',
+            'install',
+            'uninstall',
+            'installation_browse_sql',
+            'public_theme_header',
 
 
         );
         protected $_filters = array(
-        	'admin_navigation_main'
+            'admin_navigation_main'
 
         );
         protected $_options = null;
@@ -158,43 +158,42 @@ if (class_exists('Omeka_Plugin_Abstract')) {
                 record_relations_install_properties(array($propData));
             }
 
-			//put in Europeana properties
-			$europeanaProps = array(
-			      array(
-			            'name' => 'Europeana',
-			            'description' => 'Europeana relations',
-			            'namespace_prefix' => 'europeana',
-			            'namespace_uri' => EUROPEANA,
-			            'properties' => array(
-			                array(
-			                    'local_part' => 'isShownBy',
-			                    'label' => 'is shown by',
-			                    'description' => ''
-			                ),
-			                array(
-			                	'local_part' => 'isDisplayedBy',
-			                	'label' => 'is displayed by',
-			                	'description' => ''
-			                ),
-			                array(
-			                	'local_part' => 'provider',
-			                	'label' => 'provider',
-			                	'description' => ''
-			                ),
-			                array(
-			                	'local_part' => 'dataProvider',
-			                	'label' => 'data provider',
-			                	'description' => ''
-			                ),
-			            )
-			        )
+            //put in Europeana properties
+            $europeanaProps = array(
+                  array(
+                        'name' => 'Europeana',
+                        'description' => 'Europeana relations',
+                        'namespace_prefix' => 'europeana',
+                        'namespace_uri' => EUROPEANA,
+                        'properties' => array(
+                            array(
+                                'local_part' => 'isShownBy',
+                                'label' => 'is shown by',
+                                'description' => ''
+                            ),
+                            array(
+                                'local_part' => 'isDisplayedBy',
+                                'label' => 'is displayed by',
+                                'description' => ''
+                            ),
+                            array(
+                                'local_part' => 'provider',
+                                'label' => 'provider',
+                                'description' => ''
+                            ),
+                            array(
+                                'local_part' => 'dataProvider',
+                                'label' => 'data provider',
+                                'description' => ''
+                            ),
+                        )
+                    )
 
-			  );
-			record_relations_install_properties($europeanaProps);
+              );
+            record_relations_install_properties($europeanaProps);
 
             $blocks = unserialize(get_option('blocks'));
             $blocks[] = 'CommonsOriginalInfoBlock';
-            $blocks[] = 'CommonsLicenseInfoBlock';
             set_option('blocks', serialize($blocks));
         }
 
@@ -204,12 +203,12 @@ if (class_exists('Omeka_Plugin_Abstract')) {
             $db = get_db();
 
             $sql = "DROP TABLE IF EXISTS `$db->Installation`,
-            		`$db->InstallationContextExhibit`,
-            		`$db->InstallationContextExhibitSection`,
-            		`$db->InstallationContextExhibitPage`,
-            		`$db->InstallationContextCollection`,
-            		`$db->InstallationItem`,
-            		`$db->InstallationToken` ;
+                    `$db->InstallationContextExhibit`,
+                    `$db->InstallationContextExhibitSection`,
+                    `$db->InstallationContextExhibitPage`,
+                    `$db->InstallationContextCollection`,
+                    `$db->InstallationItem`,
+                    `$db->InstallationToken` ;
             ";
 
             $db->exec($sql);

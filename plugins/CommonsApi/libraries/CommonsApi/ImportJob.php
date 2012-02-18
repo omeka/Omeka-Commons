@@ -2,7 +2,7 @@
 
 class CommonsApi_ImportJob extends Omeka_JobAbstract
 {
-    
+
     public function perform()
     {
 
@@ -20,11 +20,11 @@ class CommonsApi_ImportJob extends Omeka_JobAbstract
         try {
             $importer = new CommonsApi_Importer($data);
         } catch (Exception $e) {
-            _log($e->getMessage());
+            _log($e);
         }
 
         if(isset($data['collections'])) {
-            
+
             foreach($data['collections'] as $collectionData) {
                 try {
                     $importer->processContext($collectionData, 'Collection');
@@ -34,7 +34,6 @@ class CommonsApi_ImportJob extends Omeka_JobAbstract
             }
 
         }
-_log('done collections');
 
         if(isset($data['exhibits'])) {
             foreach($data['exhibits'] as $index=>$exhibitData) {
@@ -45,7 +44,7 @@ _log('done collections');
                 }
             }
         }
-_log('done exhibits');
+
         if(isset($data['exhibits'])) {
             foreach($data['exhibits'] as $index=>$exhibitData) {
                 try {
@@ -55,8 +54,7 @@ _log('done exhibits');
                 }
             }
         }
-_log('done exhibit sections');
-    
+
         if(isset($data['exhibits'])) {
             foreach($data['exhibits'] as $index=>$exhibitData) {
                 try {
@@ -66,24 +64,22 @@ _log('done exhibit sections');
                 }
             }
         }
-_log('done exhibit section pages');
-// */
-_log('before items');
+
         try {
             if(!empty($data['items'])) {
                 $importer->processItem($data['items'][0]);
             }
         } catch (Exception $e) {
-            _log($e->getMessage());
+            _log($e);
         }
         $import->status = serialize($importer->response);
         $import->save();
 _log($response->response);
-        
+
     }
-    
-    
-    
-    
-    
+
+
+
+
+
 }
