@@ -215,7 +215,6 @@ if (class_exists('Omeka_Plugin_Abstract')) {
             $blocks = unserialize(get_option('blocks'));
             $blocks = array_flip($blocks);
             unset($blocks['CommonsOriginalInfoBlock']);
-            unset($blocks['CommonsLicenseInfoBlock']);
             $blocks = array_flip($blocks);
             set_option('blocks', serialize($blocks));
         }

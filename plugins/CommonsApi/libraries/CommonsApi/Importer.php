@@ -12,8 +12,6 @@ class CommonsApi_Importer
     public function __construct($data)
     {
         $this->db = get_db();
-
-
         Omeka_Context::getInstance()->setAcl(null);
 
         $this->validate($data);
@@ -52,6 +50,7 @@ class CommonsApi_Importer
             $item = $installationItem->findItem();
             $this->updateItem($item, $data);
         } else {
+
             $item = $this->importItem($data);
             $installationItem = new InstallationItem();
             $installationItem->item_id = $item->id;
@@ -73,6 +72,7 @@ class CommonsApi_Importer
 
         //update or add to collection information
         $has_container = $this->db->getTable('RecordRelationsProperty')->findByVocabAndPropertyName(SIOC, 'has_container');
+
         if(isset($data['collection'])) {
 
             //collections are imported before items, so this should already exist
@@ -80,7 +80,7 @@ class CommonsApi_Importer
             $options = array(
                 'subject_record_type' => 'InstallationItem',
                 'subject_id' => $installationItem->id,
-                'object_record_type' => 'InstallationCollection',
+                'object_record_type' => 'InstallationContext_Collection',
                 'object_id' => $instCollection->id,
                 'property_id' => $has_container->id,
                 'user_id' => 1
@@ -93,8 +93,9 @@ class CommonsApi_Importer
             $relation = $this->db->getTable('RecordRelationsRelation')->findOne($options);
 
             if($instCollection && !$relation) {
+
                 $relation = new RecordRelationsRelation();
-                $relation->property_id = $has_collection->id;
+                $relation->property_id = $has_container->id;
                 $relation->subject_record_type = 'InstallationItem';
                 $relation->object_record_type = 'InstallationContext_Collection';
                 $relation->subject_id = $installationItem->id;
@@ -102,7 +103,6 @@ class CommonsApi_Importer
                 $relation->user_id = 1; //@TODO remove the magic number
                 $relation->save();
             }
-
         }
 
         //build relations to exhibit data
@@ -153,7 +153,6 @@ class CommonsApi_Importer
             }
 
         }
-
         $this->response['status'] = 'success';
     }
 
