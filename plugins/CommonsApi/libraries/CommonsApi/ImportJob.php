@@ -12,16 +12,30 @@ class CommonsApi_ImportJob extends Omeka_JobAbstract
         } catch (Exception $e) {
             _log($e);
         }
+
+
+
         $installations = get_db()->getTable('Installation')->findBy(array('url'=> $data['installation_url']));
         $installation = $installations[0];
+
+        //check that the keys match!
+        if($data['key'] != $installation->key) {
+            _log('invalid key: ' . $data['installation_url']);
+            return;
+        }
+
         $import->installation_id = $installation->id;
         $import->time = time();
+
+
 
         try {
             $importer = new CommonsApi_Importer($data);
         } catch (Exception $e) {
             _log($e);
         }
+
+        $importer->processInstallation($data['installation']);
 
         if(isset($data['collections'])) {
 

@@ -36,7 +36,9 @@ class CommonsApi_Importer
             $this->installation->$key = $value;
         }
         $this->installation->last_import = Zend_Date::now()->toString('yyyy-MM-dd HH:mm:ss');
-        $this->installation->key = $this->key;
+        foreach($data as $field=>$value) {
+            $this->installation->$field = $value;
+        }
         $this->installation->save();
     }
 
@@ -203,8 +205,7 @@ class CommonsApi_Importer
         try {
             $result = insert_files_for_item($item, $transferStrategy, $filesData, $options);
         } catch (Exception $e) {
-                    _log($e->getMessage());
-                    _log($e->getTraceAsString());
+            _log($e);
         }
     }
 

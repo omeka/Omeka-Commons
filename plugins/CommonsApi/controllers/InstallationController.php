@@ -1,9 +1,9 @@
 <?php
 
-class CommonsApi_InstallationController extends Omeka_Controller_Action
+class CommonsApi_SiteController extends Omeka_Controller_Action
 {
-    
-    
+
+
     public function applyAction()
     {
         $data = json_decode($_POST['data'], true);
@@ -14,7 +14,7 @@ class CommonsApi_InstallationController extends Omeka_Controller_Action
             $response = array('status'=>'OK', 'message'=>'Already exists');
             $this->_helper->json($response);
             die();
-            
+
         }
         //thwart cheeky monkeys trying to send data that they have been approved/added to the Commons
         if(isset($data['installation']['added'])) {
@@ -29,11 +29,11 @@ class CommonsApi_InstallationController extends Omeka_Controller_Action
 
         $installation->entity_id = $installationEntity->id;
         $installation->save();
-        
+
         $this->_helper->json($response);
     }
-    
 
-    
+
+
 
 }
