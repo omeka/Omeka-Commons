@@ -41,11 +41,6 @@ class SiteItemTable extends Omeka_Db_Table
         return $this->getTable('Item')->fetchObjects($select);
     }
 
-    public function findItemForOriginalId($orig_id)
-    {
-
-    }
-
     public function findSiteForItem($item_id)
     {
         $sitesTable = $this->getTable('Site');
