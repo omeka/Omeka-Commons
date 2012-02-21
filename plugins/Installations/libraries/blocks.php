@@ -6,24 +6,25 @@ class CommonsOriginalInfoBlock extends Blocks_Block_Abstract
 
     const name = "Commons Original Info";
     const description = "Display the original context for an item";
-    const plugin = "Installations";
+    const plugin = "Sites";
 
-    public $installationItem;
+    public $siteItem;
 
     public function render()
     {
         $db = get_db();
-        $installation = $this->findInstallation();
-        $installationItem = $this->findInstallationItem();
+
+        $site = $this->findSite();
+        $siteItem = $this->findSiteItem();
         $has_container = $db->getTable('RecordRelationsProperty')->findByVocabAndPropertyName(SIOC, 'has_container');
-        $collections = $this->findInstallationContexts($has_container, 'InstallationContext_Collection');
-        $exhibits = $this->findInstallationContexts($has_container, 'InstallationContext_Exhibit');
-        $exhibitSections = $this->findInstallationContexts($has_container, 'InstallationContext_ExhibitSection');
-        $exhibitSectionPages = $this->findInstallationContexts($has_container, 'InstallationContext_ExhibitSectionPage');
+        $collections = $this->findSiteContexts($has_container, 'SiteContext_Collection');
+        $exhibits = $this->findSiteContexts($has_container, 'SiteContext_Exhibit');
+        $exhibitSections = $this->findSiteContexts($has_container, 'SiteContext_ExhibitSection');
+        $exhibitSectionPages = $this->findSiteContexts($has_container, 'SiteContext_ExhibitSectionPage');
         $html = "<div class='block'>";
         $html .= "<h2>Original Site Info</h2>";
-        $html .= "<p><a href='" . $installation->url . "'>" . $installation->title . "</a></p>";
-        $html .= "<p>". $installation->description . "</p>";
+        $html .= "<p><a href='" . $site->url . "'>" . $site->title . "</a></p>";
+        $html .= "<p>". $site->description . "</p>";
         if(!empty($collections)) {
             $html .= "<h2>Collection(s)</h2>";
             foreach($collections as $collection) {
@@ -40,7 +41,7 @@ class CommonsOriginalInfoBlock extends Blocks_Block_Abstract
 
         }
 
-        $html .= "<p><a href='{$installationItem->url}'>View Original</a>";
+        $html .= "<p><a href='{$siteItem->url}'>View Original</a>";
 
         $html .= "</div>";
 
@@ -57,19 +58,19 @@ class CommonsOriginalInfoBlock extends Blocks_Block_Abstract
         return false;
     }
 
-    private function findInstallation()
+    private function findSite()
     {
         $db = get_db();
         $params = $this->request->getParams();
-        $installation = $db->getTable('InstallationItem')->findInstallationForItem($params['id']);
-        return $installation;
+        $site = $db->getTable('SiteItem')->findSiteForItem($params['id']);
+        return $site;
     }
 
-    private function findInstallationItem()
+    private function findSiteItem()
     {
         $params = $this->request->getParams();
-        $this->installationItem = get_db()->getTable('InstallationItem')->findByItemId($params['id']);
-        return $this->installationItem;
+        $this->siteItem = get_db()->getTable('SiteItem')->findByItemId($params['id']);
+        return $this->siteItem;
 
     }
 
@@ -79,7 +80,7 @@ class CommonsOriginalInfoBlock extends Blocks_Block_Abstract
  *
  */
 
-     private function findInstallationContexts($pred = null, $objectContextType)
+     private function findSiteContexts($pred = null, $objectContextType)
      {
          $db = get_db();
          if(is_null($pred)) {
@@ -87,8 +88,8 @@ class CommonsOriginalInfoBlock extends Blocks_Block_Abstract
          }
 
         $relParams = array(
-            'subject_id' => $this->installationItem->id,
-            'subject_record_type' => 'InstallationItem',
+            'subject_id' => $this->siteItem->id,
+            'subject_record_type' => 'SiteItem',
             'property_id' => $pred->id,
             'object_record_type' => $objectContextType
         );

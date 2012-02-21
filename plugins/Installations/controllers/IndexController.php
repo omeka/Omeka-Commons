@@ -3,7 +3,7 @@
 class Sites_IndexController extends Omeka_Controller_Action
 {
 
-    protected $_modelClass = 'Installation';
+    protected $_modelClass = 'Site';
 
     public function indexAction()
     {
@@ -15,12 +15,12 @@ class Sites_IndexController extends Omeka_Controller_Action
     {
         $db = get_db();
         $id = $this->getRequest()->getParam('id');
-        $installation = $db->getTable('Installation')->find($id);
-        $installation->added = Zend_Date::now()->toString('yyyy-MM-dd HH:mm:ss');
-        $installation->save();
+        $site = $db->getTable('Site')->find($id);
+        $site->added = Zend_Date::now()->toString('yyyy-MM-dd HH:mm:ss');
+        $site->save();
 
-        $this->sendApprovalEmail($installation);
-        $responseArray = array('id' => $id, 'added'=>$installation->added);
+        $this->sendApprovalEmail($site);
+        $responseArray = array('id' => $id, 'added'=>$site->added);
         $this->_helper->json(json_encode($responseArray));
     }
 
@@ -30,7 +30,7 @@ class Sites_IndexController extends Omeka_Controller_Action
         if(!$token) {
             exit;
         }
-        $instTokens = $this->getDb()->getTable('InstallationToken')->findBy(array('token'=>$token), 1);
+        $instTokens = $this->getDb()->getTable('SiteToken')->findBy(array('token'=>$token), 1);
 
         $instToken = $instTokens[0];
         if($token != $instToken->token ) {
@@ -41,17 +41,17 @@ class Sites_IndexController extends Omeka_Controller_Action
             exit;
         } else {
             $this->view->assign('debug', array(time(), $instToken->expiration));
-            $installation = $this->getDb()->getTable('Installation')->find($instToken->installation_id);
-            $this->view->assign('installation', $installation);
+            $site = $this->getDb()->getTable('Site')->find($instToken->site_id);
+            $this->view->assign('site', $site);
         }
 
     }
 
-    private function sendApprovalEmail($installation)
+    private function sendApprovalEmail($site)
     {
 
-        $tokenUrl = $this->createTokenUrl($installation);
-        $to = $installation->admin_email;
+        $tokenUrl = $this->createTokenUrl($site);
+        $to = $site->admin_email;
         $from = get_option('administrator_email');
         $subject = "Omeka Commons participation approved!";
         $body = "Thank you for participating in the Omeka Commons. blah blah blah
@@ -72,21 +72,21 @@ class Sites_IndexController extends Omeka_Controller_Action
         $mail = new Zend_Mail();
         $mail->setBodyText($body);
         $mail->setFrom($from, "Omeka Commons");
-        $mail->addTo($to, $installation->title . " Administrator");
+        $mail->addTo($to, $site->title . " Administrator");
         $mail->setSubject($subject);
         $mail->addHeader('X-Mailer', 'PHP/' . phpversion());
         $mail->send();
 
     }
 
-    private function createTokenUrl($installation)
+    private function createTokenUrl($site)
     {
         $token = sha1("tOkenS@1t" . microtime());
-        $tokenUrl = WEB_ROOT . '/installations/index/key' . "?token=" . $token;
+        $tokenUrl = WEB_ROOT . '/sites/index/key' . "?token=" . $token;
 
-        $instToken = new InstallationToken();
+        $instToken = new SiteToken();
 
-        $instToken->installation_id = $installation->id;
+        $instToken->site_id = $site->id;
         $instToken->token = $token;
         $instToken->save();
         return $tokenUrl;

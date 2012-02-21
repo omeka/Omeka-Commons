@@ -1,15 +1,15 @@
 <?php
-queue_js('installations');
-$head = array('bodyclass' => 'installations primary',
+queue_js('sites');
+$head = array('bodyclass' => 'sites primary',
               'title' => html_escape('Installations'));
 head($head);
 
-function approve_link($installation) {
+function approve_link($site) {
     
-    if(empty($installation->added)) {
-        return "<span class='approve' id='approve-" . $installation->id . "'>Approve</span>";
+    if(empty($site->added)) {
+        return "<span class='approve' id='approve-" . $site->id . "'>Approve</span>";
     }
-    return $installation->added;
+    return $site->added;
     
 }
 ?>
@@ -23,8 +23,8 @@ function approve_link($installation) {
                 <li><strong>Quick Filter</strong></li>
             <?php
                 echo nav(array(
-                    'All' => uri('installations/index/browse'),
-                    'Needs Approval' => uri('installations/index/browse?unapproved=true')
+                    'All' => uri('sites/index/browse'),
+                    'Needs Approval' => uri('sites/index/browse?unapproved=true')
                 ));
             ?>
             </ul>
@@ -48,16 +48,16 @@ function approve_link($installation) {
     	
     	</thead>
     	<tbody>
-        <?php foreach($installations as $installation): ?>
+        <?php foreach($sites as $site): ?>
         <tr>
-        <td><?php echo $installation->title; ?></td>
-        <td><?php echo $installation->description; ?></td>
-        <td><?php echo $installation->url; ?></td>
-        <td><?php echo $installation->admin_email; ?></td>
-        <td><?php echo $installation->author; ?></td>
-        <td><?php echo $installation->copyright_info; ?></td>
-        <td><?php echo $installation->last_import; ?></td>
-        <td><?php echo approve_link($installation); ?></td>
+        <td><?php echo $site->title; ?></td>
+        <td><?php echo $site->description; ?></td>
+        <td><?php echo $site->url; ?></td>
+        <td><?php echo $site->admin_email; ?></td>
+        <td><?php echo $site->author; ?></td>
+        <td><?php echo $site->copyright_info; ?></td>
+        <td><?php echo $site->last_import; ?></td>
+        <td><?php echo approve_link($site); ?></td>
                 
         </tr>
         <?php endforeach; ?>

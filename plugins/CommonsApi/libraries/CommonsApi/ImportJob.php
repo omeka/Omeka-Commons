@@ -15,16 +15,16 @@ class CommonsApi_ImportJob extends Omeka_JobAbstract
 
 
 
-        $installations = get_db()->getTable('Installation')->findBy(array('url'=> $data['installation_url']));
-        $installation = $installations[0];
+        $sites = get_db()->getTable('Site')->findBy(array('url'=> $data['site_url']));
+        $site = $sites[0];
 
         //check that the keys match!
-        if($data['key'] != $installation->key) {
-            _log('invalid key: ' . $data['installation_url']);
+        if($data['key'] != $site->key) {
+            _log('invalid key: ' . $data['site_url']);
             return;
         }
 
-        $import->installation_id = $installation->id;
+        $import->site_id = $site->id;
         $import->time = time();
 
 
@@ -35,7 +35,7 @@ class CommonsApi_ImportJob extends Omeka_JobAbstract
             _log($e);
         }
 
-        $importer->processInstallation($data['installation']);
+        $importer->processSite($data['site']);
 
         if(isset($data['collections'])) {
 
@@ -56,7 +56,7 @@ class CommonsApi_ImportJob extends Omeka_JobAbstract
                     $importer->processContext($data['exhibits'][$index]['section'], 'ExhibitSection');
                     $importer->processContext($data['exhibits'][$index]['page'], 'ExhibitSectionPage');
                 } catch (Exception $e) {
-                    _log($e->getMessage());
+                    _log($e);
                 }
             }
         }

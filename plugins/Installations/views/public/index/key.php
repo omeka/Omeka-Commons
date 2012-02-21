@@ -5,10 +5,10 @@ head();
 
 <div id="primary">
 
-<p>Your API key is:<br/><br/> <?php echo $installation->key; ?></p>
+<p>Your API key is:<br/><br/> <?php echo $site->key; ?></p>
 
 <p>The next step is to copy and paste it into your Commons configuration page:
-<?php $link = $installation->url . "/admin/plugins/config?name=Commons"; ?>
+<?php $link = $site->url . "/admin/plugins/config?name=Commons"; ?>
 <a target="_blank" href="<?php echo $link; ?>"><?php echo $link; ?></a>
 </p>
 

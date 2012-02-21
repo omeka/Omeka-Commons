@@ -4,8 +4,8 @@ class CommonsApi_Importer
 {
     public $data = array();
     public $response = array();
-    private $installation;
-    private $installation_url;
+    private $site;
+    private $site_url;
     private $db;
     private $key;
 
@@ -16,46 +16,46 @@ class CommonsApi_Importer
 
         $this->validate($data);
         $this->key = $data['key'];
-        $this->installation_url = $data['installation_url'];
-        $installations = $this->db->getTable('Installation')->findBy(array('key'=>$data['key']));
-        if($installations) {
-            $installation = $installations[0];
+        $this->site_url = $data['site_url'];
+        $sites = $this->db->getTable('Site')->findBy(array('key'=>$data['key']));
+        if($sites) {
+            $site = $sites[0];
         } else {
-            $installation = new Installation();
+            $site = new Site();
         }
-        foreach($data['installation'] as $key=>$value) {
-            $installation->$key = $value;
+        foreach($data['site'] as $key=>$value) {
+            $site->$key = $value;
         }
-        $installation->save();
-        $this->installation = $installation;
+        $site->save();
+        $this->site = $site;
     }
 
-    public function processInstallation($data)
+    public function processSite($data)
     {
         foreach($data as $key=>$value) {
-            $this->installation->$key = $value;
+            $this->site->$key = $value;
         }
-        $this->installation->last_import = Zend_Date::now()->toString('yyyy-MM-dd HH:mm:ss');
+        $this->site->last_import = Zend_Date::now()->toString('yyyy-MM-dd HH:mm:ss');
         foreach($data as $field=>$value) {
-            $this->installation->$field = $value;
+            $this->site->$field = $value;
         }
-        $this->installation->save();
+        $this->site->save();
     }
 
 
     public function processItem($data)
     {
 
-        $installationItem = $this->db->getTable('InstallationItem')->findByInstallationIdAndOrigId($this->installation->id, $data['orig_id']);
+        $siteItem = $this->db->getTable('SiteItem')->findBySiteIdAndOrigId($this->site->id, $data['orig_id']);
 
-        if($installationItem) {
-            $item = $installationItem->findItem();
+        if($siteItem) {
+            $item = $siteItem->findItem();
             $this->updateItem($item, $data);
         } else {
 
             $item = $this->importItem($data);
-            $installationItem = new InstallationItem();
-            $installationItem->item_id = $item->id;
+            $siteItem = new SiteItem();
+            $siteItem->item_id = $item->id;
         }
 
         if(!empty($data['files'])) {
@@ -65,12 +65,12 @@ class CommonsApi_Importer
             $this->processItemTags($item, $data['tags']);
         }
 
-        $installationItem->installation_id = $this->installation->id;
-        $installationItem->orig_id = $data['orig_id'];
-        $installationItem->item_id = $item->id;
-        $installationItem->url = $data['url'];
-        $installationItem->license = $data['license'];
-        $installationItem->save();
+        $siteItem->site_id = $this->site->id;
+        $siteItem->orig_id = $data['orig_id'];
+        $siteItem->item_id = $item->id;
+        $siteItem->url = $data['url'];
+        $siteItem->license = $data['license'];
+        $siteItem->save();
 
         //update or add to collection information
         $has_container = $this->db->getTable('RecordRelationsProperty')->findByVocabAndPropertyName(SIOC, 'has_container');
@@ -78,11 +78,11 @@ class CommonsApi_Importer
         if(isset($data['collection'])) {
 
             //collections are imported before items, so this should already exist
-            $instCollection = $this->db->getTable('InstallationContext_Collection')->findByInstallationIdAndOrigId($this->installation->id,$data['collection']);
+            $instCollection = $this->db->getTable('SiteContext_Collection')->findBySiteIdAndOrigId($this->site->id,$data['collection']);
             $options = array(
-                'subject_record_type' => 'InstallationItem',
-                'subject_id' => $installationItem->id,
-                'object_record_type' => 'InstallationContext_Collection',
+                'subject_record_type' => 'SiteItem',
+                'subject_id' => $siteItem->id,
+                'object_record_type' => 'SiteContext_Collection',
                 'object_id' => $instCollection->id,
                 'property_id' => $has_container->id,
                 'user_id' => 1
@@ -98,9 +98,9 @@ class CommonsApi_Importer
 
                 $relation = new RecordRelationsRelation();
                 $relation->property_id = $has_container->id;
-                $relation->subject_record_type = 'InstallationItem';
-                $relation->object_record_type = 'InstallationContext_Collection';
-                $relation->subject_id = $installationItem->id;
+                $relation->subject_record_type = 'SiteItem';
+                $relation->object_record_type = 'SiteContext_Collection';
+                $relation->subject_id = $siteItem->id;
                 $relation->object_id = $instCollection->id;
                 $relation->user_id = 1; //@TODO remove the magic number
                 $relation->save();
@@ -111,17 +111,17 @@ class CommonsApi_Importer
 
         if(isset($data['exhibitPages'])) {
             $options = array(
-                'subject_record_type' => 'InstallationItem',
-                'subject_id' => $installationItem->id,
-                'object_record_type' => 'InstallationCollection',
+                'subject_record_type' => 'SiteItem',
+                'subject_id' => $siteItem->id,
+                'object_record_type' => 'SiteCollection',
                 'object_id' => $instCollection->id,
                 'property_id' => $has_container->id,
                 'user_id' => 1
             );
 
             foreach($data['exhibitPages'] as $pageId) {
-                $options['object_record_type'] = 'InstallationContext_ExhibitSectionPage';
-                $pageContext = $this->db->getTable('InstallationContext_ExhibitSectionPage')->findByInstallationIdAndOrigId($this->installation->id,$pageId);
+                $options['object_record_type'] = 'SiteContext_ExhibitSectionPage';
+                $pageContext = $this->db->getTable('SiteContext_ExhibitSectionPage')->findBySiteIdAndOrigId($this->site->id,$pageId);
                 $options['object_id'] = $pageContext->id;
                 $relation = $this->db->getTable('RecordRelationsRelation')->findOne($options);
                 if(!$relation) {
@@ -130,10 +130,10 @@ class CommonsApi_Importer
                     $relation->save();
                 }
 
-                $sectionId = $pageContext->installation_section_id;
+                $sectionId = $pageContext->site_section_id;
 
-                $options['object_record_type'] = 'InstallationContext_ExhibitSection';
-                $sectionContext = $this->db->getTable('InstallationContext_ExhibitSection')->findByInstallationIdAndOrigId($this->installation->id,$sectionId);
+                $options['object_record_type'] = 'SiteContext_ExhibitSection';
+                $sectionContext = $this->db->getTable('SiteContext_ExhibitSection')->findBySiteIdAndOrigId($this->site->id,$sectionId);
                 $options['object_id'] = $sectionContext->id;
                 $relation = $this->db->getTable('RecordRelationsRelation')->findOne($options);
                 if(!$relation) {
@@ -142,9 +142,9 @@ class CommonsApi_Importer
                     $relation->save();
                 }
 
-                $exhibitId = $sectionContext->installation_exhibit_id;
-                $options['object_record_type'] = 'InstallationContext_Exhibit';
-                $exhibitContext = $this->db->getTable('InstallationContext_Exhibit')->findByInstallationIdAndOrigId($this->installation->id, $exhibitId);
+                $exhibitId = $sectionContext->site_exhibit_id;
+                $options['object_record_type'] = 'SiteContext_Exhibit';
+                $exhibitContext = $this->db->getTable('SiteContext_Exhibit')->findBySiteIdAndOrigId($this->site->id, $exhibitId);
                 $options['object_id'] = $exhibitContext->id;
                 $relation = $this->db->getTable('RecordRelationsRelation')->findOne($options);
                 if(!$relation) {
@@ -160,13 +160,13 @@ class CommonsApi_Importer
 
     public function processContext($data, $context)
     {
-        $contextRecord = $this->db->getTable('InstallationContext_' . $context)->findByInstallationIdAndOrigId($this->installation->id, $data['orig_id']);
+        $contextRecord = $this->db->getTable('SiteContext_' . $context)->findBySiteIdAndOrigId($this->site->id, $data['orig_id']);
         if(!$contextRecord) {
-            $class = 'InstallationContext_' . $context;
+            $class = 'SiteContext_' . $context;
             $contextRecord = new $class();
         }
 
-        $contextRecord->installation_id = $this->installation->id;
+        $contextRecord->site_id = $this->site->id;
         foreach($data as $key=>$value) {
             $contextRecord->$key = $value;
         }
@@ -183,7 +183,7 @@ class CommonsApi_Importer
 
     public function processFile($fileData)
     {
-        $item = $this->db->getTable('InstallationItem')->findItemBy(array('orig_id'=>$fileData['item_orig_id']) );
+        $item = $this->db->getTable('SiteItem')->findItemBy(array('orig_id'=>$fileData['item_orig_id']) );
         $this->processItemFiles($item, $fileData['url'] );
     }
 
@@ -201,9 +201,9 @@ class CommonsApi_Importer
         }
         $transferStrategy = 'Url';
         $options = array( );
-
         try {
             $result = insert_files_for_item($item, $transferStrategy, $filesData, $options);
+
         } catch (Exception $e) {
             _log($e);
         }
@@ -211,7 +211,7 @@ class CommonsApi_Importer
 
     private function processItemTags($item, $tags)
     {
-        $entity = $this->installation->getEntity();
+        $entity = $this->site->getEntity();
         $item->addTags($tags, $entity);
     }
 
@@ -229,7 +229,6 @@ class CommonsApi_Importer
 
     private function updateItem($item, $data)
     {
-
         $itemMetadata = $data;
         $itemMetadata['overwriteElementTexts'] = true;
         unset($itemMetadata['tags']);
@@ -241,7 +240,6 @@ class CommonsApi_Importer
 
     public function processItemElements($data)
     {
-
         //process ItemTypes and ItemType Metadata to make sure they all exist first
         $newElementTexts = array();
         foreach($data['elementTexts'] as $elSet=>$elTexts) {
@@ -261,9 +259,9 @@ class CommonsApi_Importer
     public function processItemType($data)
     {
 
-        //data might be a string if we're doing a pull from installation, array if a push
+        //data might be a string if we're doing a pull from site, array if a push
         if(is_string($data)) {
-            $itemTypeData = $this->parseInstallationItemTypeData($data);
+            $itemTypeData = $this->parseSiteItemTypeData($data);
         }
 
         $itemTypesTable = $this->db->getTable('ItemType');
@@ -316,7 +314,7 @@ class CommonsApi_Importer
         return $itemType;
     }
 
-    private function parseInstallationItemTypeData($name, $description = null)
+    private function parseSiteItemTypeData($name, $description = null)
     {
         $returnArray = array();
 
@@ -325,7 +323,7 @@ class CommonsApi_Importer
         if($offset !== false) {
             $name = substr($name, 0, $offset);
         }
-        $returnArray['name'] = $this->installation_url . '/customItemTypes/' . $name;
+        $returnArray['name'] = $this->site_url . '/customItemTypes/' . $name;
         if($description) {
             $returnArray['description'] = $description;
         }
@@ -337,7 +335,7 @@ class CommonsApi_Importer
         if(!is_array($data)) {
             throw new Exception('Importer: Data is not an array');
         }
-        if(!isset($data['key']) || !isset($data['installation_url'])) {
+        if(!isset($data['key']) || !isset($data['site_url'])) {
             throw new Exception('Importer: Data array not set');
         }
 
