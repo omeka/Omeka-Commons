@@ -36,7 +36,6 @@ class CommonsApi_ImportJob extends Omeka_JobAbstract
         }
 
         if(isset($data['deleteItem'])) {
-_log('delete');
             $params = array(
                 'site_id' => $site->id,
                 'orig_id' => $data['deleteItem'],
@@ -45,8 +44,6 @@ _log('delete');
             $items = get_db()->getTable('SiteItem')->findItemsBy($params);
             $item = $items[0];
             $item->public = false;
-_log(print_r($item, true));
-_log('end delete');
             $item->save();
         }
 

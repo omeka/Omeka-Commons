@@ -5,11 +5,6 @@ class Sites_IndexController extends Omeka_Controller_Action
 
     protected $_modelClass = 'Site';
 
-    public function indexAction()
-    {
-        $this->redirect->gotoSimple('browse');
-        return;
-    }
 
     public function approveAction()
     {

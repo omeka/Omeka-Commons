@@ -1,6 +1,4 @@
 <?php
-define('SITES_PLUGIN_DIR', dirname(__FILE__));
-require_once PLUGIN_DIR . '/RecordRelations/includes/models/RelatableRecord.php';
 
 
 class SitesPlugin extends Omeka_Plugin_Abstract

@@ -37,8 +37,8 @@ class SiteItemTable extends Omeka_Db_Table
         foreach($params as $field=>$value) {
             $select->where("sit.$field = ?", $value);
         }
-        $select->join(array('sit'=>$db->SiteItems), 'sit.item_id = i.id', array());
-        return $this->getTable('Item')->fetchObjects($select);
+        $select->join(array('sit'=>$db->SiteItem), 'sit.item_id = i.id', array());
+        return $itemTable->fetchObjects($select);
     }
 
     public function findSiteForItem($item_id)
@@ -60,4 +60,6 @@ class SiteItemTable extends Omeka_Db_Table
         return $this->getTable('Item')->fetchObject($select);
 
     }
+
+
 }

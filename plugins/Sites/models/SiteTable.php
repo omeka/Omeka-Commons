@@ -14,7 +14,6 @@ class SiteTable extends Omeka_Db_Table
                 $select->where($this->_alias . ".$column = ? ", $params[$column]);
             }
         }
-        _log($select);
         return $select;
     }
 
@@ -22,6 +21,21 @@ class SiteTable extends Omeka_Db_Table
     {
         $select = $this->getSelectForFindBy(array('url'=>$url, 'key'=>$key));
         return $this->fetchObject($select);
+    }
+
+    public function findItemsForSite($site, $params)
+    {
+        if(is_numeric($site)) {
+            $siteId = $site;
+        } else {
+            $siteId = $site->id;
+        }
+        $itemTable = $this->getDb()->getTable('Item');
+        $select = $itemTable->getSelectForFindBy($params);
+        $select->join(array('sit'=>$this->_db->SiteItem), 'sit.item_id = i.id', array());
+        $select->where("sit.site_id = ? ", $siteId);
+        _log($select);
+        return $itemTable->fetchObjects($select);
     }
 
 }
