@@ -41,8 +41,14 @@ class SiteItemTable extends Omeka_Db_Table
         return $itemTable->fetchObjects($select);
     }
 
-    public function findSiteForItem($item_id)
+    public function findSiteForItem($item)
     {
+        if(is_numeric($item)) {
+            $item_id = $item;
+        } else {
+            $item_id = $item->id;
+        }
+
         $sitesTable = $this->getTable('Site');
         $select = $sitesTable->getSelect();
         $select->join(array('sit'=>$this->_db->SiteItem), 'sit.site_id = st.id', array());

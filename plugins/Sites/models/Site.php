@@ -13,6 +13,8 @@ class Site extends Omeka_Record
     public $last_import;
     public $copyright_info;
     public $author_info;
+    public $css;
+    public $logo_url;
     public $entity_id;
 
     public function getEntity()

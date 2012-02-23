@@ -8,15 +8,24 @@ function sites_link_to_site_for_item($item = null)
         $item = get_current_item();
     }
 
-    $site = $sitesTable = $db->getTable('SiteItem')->findSiteForItem($item->id);
+    $site = $db->getTable('SiteItem')->findSiteForItem($item->id);
 
     return sites_link_to_site($site);
 }
 
-function sites_link_to_site($site = null)
+function sites_random_site() {
+
+    $sites = get_db()->getTable('Site')->findBy(array('random'=>true));
+    return $sites[0];
+}
+
+function sites_link_to_site($site = null, $text = null)
 {
+    if(!$text) {
+        $text = $site->title;
+    }
     $url = "sites/display-case/show/id/" . $site->id;
-    return "<a href='$url'>{$site->title}</a>";
+    return "<a href='$url'>$text</a>";
 }
 
 function sites_link_to_original_site($site)
@@ -33,3 +42,20 @@ function sites_random_site_item($site)
     );
     return get_db()->getTable('Site')->findItemsForSite($site, $params);
 }
+
+function sites_site_for_item($item)
+{
+    $db = get_db();
+    return $db->getTable('SiteItem')->findSiteForItem($item->id);
+}
+
+function sites_site_css($site)
+{
+    return $site->css;
+}
+
+function sites_site_logo($site)
+{
+    return "<img id='sites-logo' src='" . $site->logo_url . "'/>";
+}
+

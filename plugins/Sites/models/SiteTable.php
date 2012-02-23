@@ -14,6 +14,9 @@ class SiteTable extends Omeka_Db_Table
                 $select->where($this->_alias . ".$column = ? ", $params[$column]);
             }
         }
+        if(isset($params['random'])) {
+            $select = $this->orderSelectByRandom($select);
+        }
         return $select;
     }
 
@@ -38,4 +41,8 @@ class SiteTable extends Omeka_Db_Table
         return $itemTable->fetchObjects($select);
     }
 
+    public function orderSelectByRandom($select)
+        {
+            $select->order('RAND()');
+        }
 }

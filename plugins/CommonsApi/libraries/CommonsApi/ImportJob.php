@@ -27,8 +27,6 @@ class CommonsApi_ImportJob extends Omeka_JobAbstract
         $import->site_id = $site->id;
         $import->time = time();
 
-
-
         try {
             $importer = new CommonsApi_Importer($data);
         } catch (Exception $e) {

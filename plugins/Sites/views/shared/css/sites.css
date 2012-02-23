@@ -1,1 +1,7 @@
-img.sites-license-block {height: 30px;}
+div.site-sample {
+    float: right;
+}
+
+div#site-info {
+    float:right;
+}

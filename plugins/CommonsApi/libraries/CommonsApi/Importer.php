@@ -35,7 +35,18 @@ class CommonsApi_Importer
         foreach($data as $key=>$value) {
             $this->site->$key = $value;
         }
+
+        if(!empty($_FILES['logo']['name'])) {
+            $fileName = $this->site->id  . $_FILES['logo']['name'];
+            $filePath = SITES_PLUGIN_DIR . '/views/images/' . $fileName;
+            if(!move_uploaded_file($_FILES['logo']['tmp_name'], $filePath)) {
+                _log('Could not save the file to ' . $filePath);
+            }
+            $this->site->logo_url = WEB_ROOT . '/plugins/Sites/views/images/' . $fileName;
+        }
+
         $this->site->last_import = Zend_Date::now()->toString('yyyy-MM-dd HH:mm:ss');
+        $data = $this->preprocessSiteCss($data);
         foreach($data as $field=>$value) {
             $this->site->$field = $value;
         }
@@ -339,5 +350,15 @@ class CommonsApi_Importer
             throw new Exception('Importer: Data array not set');
         }
 
+    }
+
+    private function preprocessSiteCss($data)
+    {
+        $css = "h1 {color: " . $data['commons_title_color'] .  "; }";
+
+
+        $data['css'] = $css;
+        unset($data['commons_title_color']);
+        return $data;
     }
 }
