@@ -37,6 +37,7 @@ class CommonsApi_Importer
         }
 
         if(!empty($_FILES['logo']['name'])) {
+
             $fileName = $this->site->id  . $_FILES['logo']['name'];
             $filePath = SITES_PLUGIN_DIR . '/views/images/' . $fileName;
             if(!move_uploaded_file($_FILES['logo']['tmp_name'], $filePath)) {
