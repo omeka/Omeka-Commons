@@ -29,15 +29,19 @@ class SiteItemTable extends Omeka_Db_Table
         return $this->fetchObject($select);
     }
 
-    public function findItemsBy($params)
+    public function findItemsBy($params, $limit = null, $page = null)
     {
         $db = get_db();
         $itemTable = $db->getTable('Item');
-        $select = $itemTable->getSelect();
+        $select = $itemTable->getSelectForFindBy($params);
         foreach($params as $field=>$value) {
             $select->where("sit.$field = ?", $value);
         }
         $select->join(array('sit'=>$db->SiteItem), 'sit.item_id = i.id', array());
+
+        if ($limit) {
+            $this->applyPagination($select, $limit, $page);
+        }
         return $itemTable->fetchObjects($select);
     }
 

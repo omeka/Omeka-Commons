@@ -27,7 +27,6 @@ class CommonsApi_SiteController extends Omeka_Controller_Action
         $salt = substr(md5(mt_rand()), 0, 16);
         $site->key = sha1($salt . $site->url . microtime() );
 
-        $site->entity_id = $siteEntity->id;
         $site->save();
 
         $this->_helper->json($response);

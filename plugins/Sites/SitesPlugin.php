@@ -9,7 +9,7 @@ class SitesPlugin extends Omeka_Plugin_Abstract
         'uninstall',
         'site_browse_sql',
         'public_theme_header',
-
+    //    'define_routes'
 
     );
     protected $_filters = array(
@@ -36,7 +36,6 @@ class SitesPlugin extends Omeka_Plugin_Abstract
         $sql = "
         CREATE TABLE IF NOT EXISTS `$db->Site` (
           `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-          `entity_id` int(10) unsigned NULL,
           `url` text NULL,
           `admin_email` text NULL,
           `title` text NULL,
@@ -47,6 +46,8 @@ class SitesPlugin extends Omeka_Plugin_Abstract
           `added` timestamp NULL DEFAULT NULL,
           `copyright_info` text,
           `author_info` text NULL,
+          `css` text NULL,
+          `logo_url` text NULL,
           PRIMARY KEY (`id`)
         ) ENGINE=MyISAM CHARACTER SET utf8 COLLATE utf8_unicode_ci
 
@@ -213,6 +214,21 @@ class SitesPlugin extends Omeka_Plugin_Abstract
         unset($blocks['CommonsOriginalInfoBlock']);
         $blocks = array_flip($blocks);
         set_option('blocks', serialize($blocks));
+    }
+
+    public function hookDefineRoutes($router)
+    {
+        $router->addRoute(
+            'sites-site-route',
+            new Zend_Controller_Router_Route(
+                'sites/:action/:id',
+                array(
+                    'module'        => 'sites',
+                    'controller'    => 'index',
+                    'action'        => 'browse'
+                    )
+            )
+        );
     }
 
     public function hookSiteBrowseSql($select, $params)

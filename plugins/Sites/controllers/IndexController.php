@@ -5,6 +5,10 @@ class Sites_IndexController extends Omeka_Controller_Action
 
     protected $_modelClass = 'Site';
 
+    public function init()
+    {
+        $this->_helper->db->setDefaultModelName('Site');
+    }
 
     public function approveAction()
     {

@@ -23,7 +23,7 @@ class CommonsOriginalInfoBlock extends Blocks_Block_Abstract
         $exhibitSectionPages = $this->findSiteContexts($has_container, 'SiteContext_ExhibitSectionPage');
         $html = "<div class='block'>";
         $html .= "<h2>Original Site Info</h2>";
-        $html .= "<p><a href='" . $site->url . "'>" . $site->title . "</a></p>";
+        $html .= "<p>". sites_link_to_original_site($site) . "</p>";
         $html .= "<p>". $site->description . "</p>";
         if(!empty($collections)) {
             $html .= "<h2>Collection(s)</h2>";

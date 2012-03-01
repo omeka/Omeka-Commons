@@ -223,8 +223,7 @@ class CommonsApi_Importer
 
     private function processItemTags($item, $tags)
     {
-        $entity = $this->site->getEntity();
-        $item->addTags($tags, $entity);
+        $item->addTags($tags);
     }
 
     private function importItem($data)

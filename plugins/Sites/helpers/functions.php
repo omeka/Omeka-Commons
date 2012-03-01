@@ -24,7 +24,7 @@ function sites_link_to_site($site = null, $text = null)
     if(!$text) {
         $text = $site->title;
     }
-    $url = "sites/display-case/show/id/" . $site->id;
+    $url = uri('/sites/display-case/show/id/' . $site->id);
     return "<a href='$url'>$text</a>";
 }
 
