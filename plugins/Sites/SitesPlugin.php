@@ -191,6 +191,7 @@ class SitesPlugin extends Omeka_Plugin_Abstract
 
         $blocks = unserialize(get_option('blocks'));
         $blocks[] = 'CommonsOriginalInfoBlock';
+        $blocks[] = 'CommonsSiteInfoBlock';
         set_option('blocks', serialize($blocks));
     }
 
