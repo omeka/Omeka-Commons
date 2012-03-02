@@ -38,13 +38,9 @@ class CommonsOriginalInfoBlock extends Blocks_Block_Abstract
                 $html .= "<p><a href='" . $exhibit->url . "'>" . $exhibit->title . "</a>: ";
                 $html .= $exhibit->description . "</p>";
             }
-
         }
-
         $html .= "<p><a href='{$siteItem->url}'>View Original</a>";
-
         $html .= "</div>";
-
         return $html;
     }
 
