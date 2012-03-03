@@ -7,6 +7,10 @@ class CommonsSiteInfoBlock extends Blocks_Block_Abstract
     const description = "Display info and link to display case";
     const plugin = "Sites";
 
+    public function isEmpty()
+    {
+        return false;
+    }
 
     public function render()
     {
@@ -41,6 +45,12 @@ class CommonsOriginalInfoBlock extends Blocks_Block_Abstract
 
     public $siteItem;
 
+    public function isEmpty()
+    {
+        return false;
+    }
+
+
     public function render()
     {
         $db = get_db();
@@ -53,7 +63,6 @@ class CommonsOriginalInfoBlock extends Blocks_Block_Abstract
         $exhibitSections = $this->findSiteContexts($has_container, 'SiteContext_ExhibitSection');
         $exhibitSectionPages = $this->findSiteContexts($has_container, 'SiteContext_ExhibitSectionPage');
         $html = "<div class='block'>";
-        $html .= "<h2>Original Site Info</h2>";
         $html .= "<p>". sites_link_to_original_site($site) . "</p>";
         $html .= "<p>". $site->description . "</p>";
         if(!empty($collections)) {
@@ -101,30 +110,24 @@ class CommonsOriginalInfoBlock extends Blocks_Block_Abstract
 
     }
 
-
-/**
- * this should supercede methods below
- *
- */
-
-     private function findSiteContexts($pred = null, $objectContextType)
-     {
-         $db = get_db();
-         if(is_null($pred)) {
+    private function findSiteContexts($pred = null, $objectContextType)
+    {
+        $db = get_db();
+        if(is_null($pred)) {
              $pred = $db->getTable('RecordRelationsProperty')->findByVocabAndPropertyName(SIOC, 'has_container');
-         }
+        }
 
         $relParams = array(
             'subject_id' => $this->siteItem->id,
-            'subject_record_type' => 'SiteItem',
-            'property_id' => $pred->id,
-            'object_record_type' => $objectContextType
+        'subject_record_type' => 'SiteItem',
+        'property_id' => $pred->id,
+        'object_record_type' => $objectContextType
         );
 
         return $db->getTable('RecordRelationsRelation')->findObjectRecordsByParams($relParams);
 
 
-     }
+    }
 
 }
 
