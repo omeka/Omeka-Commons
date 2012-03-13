@@ -189,10 +189,7 @@ class SitesPlugin extends Omeka_Plugin_Abstract
           );
         record_relations_install_properties($europeanaProps);
 
-        $blocks = unserialize(get_option('blocks'));
-        $blocks[] = 'CommonsOriginalInfoBlock';
-        $blocks[] = 'CommonsSiteInfoBlock';
-        set_option('blocks', serialize($blocks));
+        blocks_register_blocks(array('CommonsOriginalInfoBlock', 'CommonsSiteInfoBlock' ));
     }
 
     public function hookUninstall()
@@ -210,11 +207,8 @@ class SitesPlugin extends Omeka_Plugin_Abstract
         ";
 
         $db->exec($sql);
-        $blocks = unserialize(get_option('blocks'));
-        $blocks = array_flip($blocks);
-        unset($blocks['CommonsOriginalInfoBlock']);
-        $blocks = array_flip($blocks);
-        set_option('blocks', serialize($blocks));
+
+        blocks_unregister_blocks(array('CommonsOriginalInfoBlock', 'CommonsSiteInfoBlock' ));
     }
 
     public function hookDefineRoutes($router)

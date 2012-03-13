@@ -107,7 +107,6 @@ class CommonsOriginalInfoBlock extends Blocks_Block_Abstract
         $params = $this->request->getParams();
         $this->siteItem = get_db()->getTable('SiteItem')->findByItemId($params['id']);
         return $this->siteItem;
-
     }
 
     private function findSiteContexts($pred = null, $objectContextType)
@@ -119,10 +118,10 @@ class CommonsOriginalInfoBlock extends Blocks_Block_Abstract
 
         $relParams = array(
             'subject_id' => $this->siteItem->id,
-        'subject_record_type' => 'SiteItem',
-        'property_id' => $pred->id,
-        'object_record_type' => $objectContextType
-        );
+            'subject_record_type' => 'SiteItem',
+            'property_id' => $pred->id,
+            'object_record_type' => $objectContextType
+            );
 
         return $db->getTable('RecordRelationsRelation')->findObjectRecordsByParams($relParams);
 
