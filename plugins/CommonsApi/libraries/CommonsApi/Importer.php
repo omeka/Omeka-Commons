@@ -4,28 +4,36 @@ class CommonsApi_Importer
 {
     public $data = array();
     public $status = array();
-    private $site;
-    private $site_url;
-    private $db;
-    private $key;
+    public $has_container_id;
+    public $site;
+    public $site_url;
+    public $db;
+    public $key;
 
-    public function __construct($data, $site)
+    public function __construct($data)
     {
+        if(! is_array($data)) {
+            $data = json_decode($data, true);
+        }
+
         $this->db = get_db();
         Omeka_Context::getInstance()->setAcl(null);
 
-        $this->validate($data);
-
-        foreach($data['site'] as $key=>$value) {
-            $site->$key = $value;
+        if($this->validate($data)) {
+            $this->data = $data;
         }
-        $site->save();
-        $this->site = $site;
+        if($this->setSite()) {
+            $this->processSite();
+        } else {
+            return false;
+        }
+        $has_container = $this->db->getTable('RecordRelationsProperty')->findByVocabAndPropertyName(SIOC, 'has_container');
+        $this->has_container_id = $has_container->id;
     }
 
-    public function processSite($data)
+    public function processSite()
     {
-        foreach($data as $key=>$value) {
+        foreach($this->data['site'] as $key=>$value) {
             $this->site->$key = $value;
         }
 
@@ -76,90 +84,33 @@ class CommonsApi_Importer
         $siteItem->license = $data['license'];
         $siteItem->save();
 
-        //update or add to collection information
+        //update or add to collection information via RecordRelations
         $has_container = $this->db->getTable('RecordRelationsProperty')->findByVocabAndPropertyName(SIOC, 'has_container');
 
         if(isset($data['collection'])) {
 
             //collections are imported before items, so this should already exist
-            $instCollection = $this->db->getTable('SiteContext_Collection')->findBySiteIdAndOrigId($this->site->id,$data['collection']);
-            $options = array(
-                'subject_record_type' => 'SiteItem',
-                'subject_id' => $siteItem->id,
-                'object_record_type' => 'SiteContext_Collection',
-                'object_id' => $instCollection->id,
-                'property_id' => $has_container->id,
-                'user_id' => 1
-            );
-
-            //use record relations here, so we can keep the history if a site
-            //changes the collection an item is in
-
-            //check if relation already exists
-            $relation = $this->db->getTable('RecordRelationsRelation')->findOne($options);
-
-            if($instCollection && !$relation) {
-
-                $relation = new RecordRelationsRelation();
-                $relation->property_id = $has_container->id;
-                $relation->subject_record_type = 'SiteItem';
-                $relation->object_record_type = 'SiteContext_Collection';
-                $relation->subject_id = $siteItem->id;
-                $relation->object_id = $instCollection->id;
-                $relation->user_id = 1; //@TODO remove the magic number
-                $relation->save();
-            }
+            $siteCollection = $this->db->getTable('SiteContext_Collection')->findBySiteIdAndOrigId($this->site->id,$data['collection']);
+            $this->buildRelation($siteItem, $siteCollection);
         }
 
         //build relations to exhibit data
+        //exhibits are imported before items, so they should already exist.
 
         if(isset($data['exhibitPages'])) {
-            $options = array(
-                'subject_record_type' => 'SiteItem',
-                'subject_id' => $siteItem->id,
-                'object_record_type' => 'SiteCollection',
-                'object_id' => $instCollection->id,
-                'property_id' => $has_container->id,
-                'user_id' => 1
-            );
-
             foreach($data['exhibitPages'] as $pageId) {
-                $options['object_record_type'] = 'SiteContext_ExhibitSectionPage';
                 $pageContext = $this->db->getTable('SiteContext_ExhibitSectionPage')->findBySiteIdAndOrigId($this->site->id,$pageId);
-                $options['object_id'] = $pageContext->id;
-                $relation = $this->db->getTable('RecordRelationsRelation')->findOne($options);
-                if(!$relation) {
-                    $relation = new RecordRelationsRelation();
-                    $relation->setProps($options);
-                    $relation->save();
-                }
+                $this->buildRelation($siteItem, $pageContext);
 
                 $sectionId = $pageContext->site_section_id;
-
-                $options['object_record_type'] = 'SiteContext_ExhibitSection';
                 $sectionContext = $this->db->getTable('SiteContext_ExhibitSection')->findBySiteIdAndOrigId($this->site->id,$sectionId);
-                $options['object_id'] = $sectionContext->id;
-                $relation = $this->db->getTable('RecordRelationsRelation')->findOne($options);
-                if(!$relation) {
-                    $relation = new RecordRelationsRelation();
-                    $relation->setProps($options);
-                    $relation->save();
-                }
+                $this->buildRelation($siteItem, $sectionContext);
 
                 $exhibitId = $sectionContext->site_exhibit_id;
-                $options['object_record_type'] = 'SiteContext_Exhibit';
                 $exhibitContext = $this->db->getTable('SiteContext_Exhibit')->findBySiteIdAndOrigId($this->site->id, $exhibitId);
-                $options['object_id'] = $exhibitContext->id;
-                $relation = $this->db->getTable('RecordRelationsRelation')->findOne($options);
-                if(!$relation) {
-                    $relation = new RecordRelationsRelation();
-                    $relation->setProps($options);
-                    $relation->save();
-                }
+                $this->buildRelation($siteItem, $exhibitContext);
             }
-
         }
-
     }
 
     public function processContext($data, $context)
@@ -176,10 +127,33 @@ class CommonsApi_Importer
         }
         $contextRecord->last_update = Zend_Date::now()->toString('yyyy-MM-dd HH:mm:ss');
         $contextRecord->save();
-
+        return $contextRecord;
     }
 
-    private function processItemFiles($item, $filesData)
+    public function buildRelation($item, $contextRecord)
+    {
+        $options = array(
+            'subject_record_type' => 'SiteItem',
+            'subject_id' => $siteItem->id,
+            'object_record_type' => get_class($contextRecord),
+            'object_id' => $contextRecord->id,
+            'property_id' => $this->has_container_id,
+            'user_id' => 1
+        );
+
+        //use record relations here, so we can keep the history if a site
+        //changes the collection an item is in
+
+        //check if relation already exists
+        $relation = $this->db->getTable('RecordRelationsRelation')->findOne($options);
+        if(!$relation) {
+            $relation = new RecordRelationsRelation();
+            $relation->setProps($options);
+            $relation->save();
+        }
+    }
+
+    public function processItemFiles($item, $filesData)
     {
         //check if files have already been imported
         $fileTable = $this->db->getTable('File');
@@ -201,12 +175,12 @@ class CommonsApi_Importer
         }
     }
 
-    private function processItemTags($item, $tags)
+    public function processItemTags($item, $tags)
     {
         $item->addTags($tags);
     }
 
-    private function importItem($data)
+    public function importItem($data)
     {
         $itemMetadata = $data;
         unset($itemMetadata['tags']);
@@ -222,7 +196,7 @@ class CommonsApi_Importer
         return $item;
     }
 
-    private function updateItem($item, $data)
+    public function updateItem($item, $data)
     {
         $itemMetadata = $data;
         $itemMetadata['overwriteElementTexts'] = true;
@@ -316,7 +290,7 @@ class CommonsApi_Importer
         return $itemType;
     }
 
-    private function parseSiteItemTypeData($name, $description = null)
+    public function parseSiteItemTypeData($name, $description = null)
     {
         $returnArray = array();
 
@@ -332,7 +306,7 @@ class CommonsApi_Importer
         return $returnArray;
     }
 
-    private function validate($data)
+    public function validate($data)
     {
         if(!is_array($data)) {
             throw new Exception('Importer: Data is not an array');
@@ -343,7 +317,42 @@ class CommonsApi_Importer
 
     }
 
-    private function preprocessSiteCss($data)
+    public function setSite()
+    {
+
+        $sites = get_db()->getTable('Site')->findBy(array('url'=> $this->data['site_url']), 1);
+        $errors = false;
+        if(empty($sites)) {
+            // $import->status['status'] = 'fail';
+            // $import->status['messages'] = 'Invalid Site URL';
+            $errors = true;
+            _log("Site " . $this->data['site_url'] . " does not exist.");
+        }
+
+        $site = $sites[0];
+        // $import->site_id = $site->id;
+
+        if(is_null($site->added)) {
+            // $import->status['status'] = 'fail';
+            // $import->status['messages'] = 'Site not yet approved. Check back later';
+            $errors = true;
+            _log("Site " . $this->data['site_url'] . " not yet approved.");
+        }
+
+        //check that the keys match!
+        if($this->data['key'] != $site->key) {
+            _log('invalid key: ' . $this->data['site_url']);
+            // $import->status['status'] = 'fail';
+            // $import->status['messages'] = 'Invalid key';
+            $errors = true;
+            _log("Site " . $this->data['site_url'] . " has a bad key: " . $this->data['key']);
+        }
+
+        $this->site = $site;
+        return $errors;
+    }
+
+    public function preprocessSiteCss($data)
     {
         $css = "h1 {color: " . $data['commons_title_color'] .  "; }";
         $data['css'] = $css;

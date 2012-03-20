@@ -2,19 +2,65 @@
 
 class CommonsApi_ImportController extends Omeka_Controller_Action
 {
+    public $importer;
+
+    public function init()
+    {
+        $this->importer = new CommonsApi_Importer($_POST['data']);
+        //handle errors
+    }
+
+    public function deleteItemAction()
+    {
+        if(isset($this->data['deleteItem'])) {
+            $params = array(
+                'site_id' => $this->importer->site->id,
+                'orig_id' => $this->importer->data['deleteItem'],
+
+            );
+            $items = get_db()->getTable('SiteItem')->findItemsBy($params);
+            $item = $items[0];
+            $item->public = false;
+            $item->save();
+        }
+    }
+
     public function indexAction()
     {
-        $jobDispatcher = Zend_Registry::get('job_dispatcher');
-        //need to create the import here, so I can pass the id back to the originating site so they can see the status
-        $import = new CommonsApiImport();
-        $import->time = time();
-        $import->status = array();
-        $import->save();
-        $options = array(
-            'data' => $_POST['data'],
-            //'import' => $import
-        );
-        $jobDispatcher->send('CommonsApi_ImportJob', $options);
+        $data = $_POST['data'];
+        if(isset($data['collections'])) {
+            foreach($data['collections'] as $collectionData) {
+                try {
+                    $importer->processContext($collectionData, 'Collection');
+                } catch (Exception $e) {
+                    _log($e);
+                }
+            }
+        }
+
+        if(isset($data['exhibits'])) {
+            foreach($data['exhibits'] as $index=>$exhibitData) {
+                try {
+                    $importer->processContext($data['exhibits'][$index]['exhibit'], 'Exhibit');
+                    $importer->processContext($data['exhibits'][$index]['section'], 'ExhibitSection');
+                    $importer->processContext($data['exhibits'][$index]['page'], 'ExhibitSectionPage');
+                } catch (Exception $e) {
+                    _log($e);
+                }
+            }
+        }
+
+        if(!empty($data['items'])) {
+            foreach($data['items'] as $item) {
+                try {
+                    $importer->processItem($item);
+                } catch (Exception $e) {
+                    _log($e);
+                }
+            }
+        }
+
+        //$jobDispatcher->send('CommonsApi_ImportJob', $options);
        // $response = array('importId'=>$import->id);
         //$this->_helper->json($response);
     }
