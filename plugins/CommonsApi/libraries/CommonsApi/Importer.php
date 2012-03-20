@@ -22,6 +22,7 @@ class CommonsApi_Importer
         if($this->validate($data)) {
             $this->data = $data;
         }
+
         if($this->setSite()) {
             $this->processSite();
         } else {
@@ -308,18 +309,14 @@ class CommonsApi_Importer
 
     public function validate($data)
     {
-        if(!is_array($data)) {
-            throw new Exception('Importer: Data is not an array');
-        }
         if(!isset($data['key']) || !isset($data['site_url'])) {
-            throw new Exception('Importer: Data array not set');
+            return false;
         }
-
+        return true;
     }
 
     public function setSite()
     {
-
         $sites = get_db()->getTable('Site')->findBy(array('url'=> $this->data['site_url']), 1);
         $errors = false;
         if(empty($sites)) {
