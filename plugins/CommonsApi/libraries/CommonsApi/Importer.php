@@ -3,26 +3,19 @@
 class CommonsApi_Importer
 {
     public $data = array();
-    public $response = array();
+    public $status = array();
     private $site;
     private $site_url;
     private $db;
     private $key;
 
-    public function __construct($data)
+    public function __construct($data, $site)
     {
         $this->db = get_db();
         Omeka_Context::getInstance()->setAcl(null);
 
         $this->validate($data);
-        $this->key = $data['key'];
-        $this->site_url = $data['site_url'];
-        $sites = $this->db->getTable('Site')->findBy(array('key'=>$data['key']));
-        if($sites) {
-            $site = $sites[0];
-        } else {
-            $site = new Site();
-        }
+
         foreach($data['site'] as $key=>$value) {
             $site->$key = $value;
         }
@@ -64,7 +57,6 @@ class CommonsApi_Importer
             $item = $siteItem->findItem();
             $this->updateItem($item, $data);
         } else {
-
             $item = $this->importItem($data);
             $siteItem = new SiteItem();
             $siteItem->item_id = $item->id;
@@ -167,7 +159,7 @@ class CommonsApi_Importer
             }
 
         }
-        $this->response['status'] = 'success';
+
     }
 
     public function processContext($data, $context)
@@ -182,21 +174,9 @@ class CommonsApi_Importer
         foreach($data as $key=>$value) {
             $contextRecord->$key = $value;
         }
+        $contextRecord->last_update = Zend_Date::now()->toString('yyyy-MM-dd HH:mm:ss');
         $contextRecord->save();
 
-    }
-
-
-    /**
-     *
-     * Used on a reported update to a file
-     * @param array $fileData
-     */
-
-    public function processFile($fileData)
-    {
-        $item = $this->db->getTable('SiteItem')->findItemBy(array('orig_id'=>$fileData['item_orig_id']) );
-        $this->processItemFiles($item, $fileData['url'] );
     }
 
     private function processItemFiles($item, $filesData)
@@ -214,10 +194,10 @@ class CommonsApi_Importer
         $transferStrategy = 'Url';
         $options = array( );
         try {
-            $result = insert_files_for_item($item, $transferStrategy, $filesData, $options);
-
+            insert_files_for_item($item, $transferStrategy, $filesData, $options);
         } catch (Exception $e) {
             _log($e);
+            $this->status[] = array('status'=>'error', 'item'=>$item->id, 'error'=>$e);
         }
     }
 
@@ -233,8 +213,12 @@ class CommonsApi_Importer
         $itemElementTexts = $this->processItemElements($data);
         $itemMetadata['public'] = true;
 
-        $item = insert_item($itemMetadata, $itemElementTexts);
-        $this->response['id'] = $item->id;
+        try {
+            $item = insert_item($itemMetadata, $itemElementTexts);
+        } catch (Exception $e) {
+            _log($e);
+            $this->addError(array('error'=>$e));
+        }
         return $item;
     }
 
@@ -245,8 +229,13 @@ class CommonsApi_Importer
         unset($itemMetadata['tags']);
         $itemMetadata['public'] = true;
         $itemElementTexts = $this->processItemElements($data);
-        update_item($item, $itemMetadata, $itemElementTexts);
-        $this->response['id'] = $item->id;
+        try {
+            update_item($item, $itemMetadata, $itemElementTexts);
+        } catch (Exception $e) {
+
+        }
+
+
     }
 
     public function processItemElements($data)
@@ -289,10 +278,7 @@ class CommonsApi_Importer
             if( $itemType->description != $itemTypeData['description'] ) {
                 $itemType->description = $itemTypeData['description'];
             }
-
             $itemType->save();
-
-
         }
 
         return $itemType;
@@ -307,7 +293,12 @@ class CommonsApi_Importer
                 $elData['name'] = $elName;
 
                 $elementArray = array(array('name'=>$elData['name']));
-                $itemType->addElements($elementArray);
+                try {
+                    $itemType->addElements($elementArray);
+                } catch (Exception $e) {
+                    _log($e);
+                    $this->addError(array('item'=>$item->id, 'error'=>$e));
+                }
             }
         }
 
@@ -334,7 +325,7 @@ class CommonsApi_Importer
         if($offset !== false) {
             $name = substr($name, 0, $offset);
         }
-        $returnArray['name'] = $this->site_url . '/customItemTypes/' . $name;
+        $returnArray['name'] = $this->site->url . '/customItemTypes/' . $name;
         if($description) {
             $returnArray['description'] = $description;
         }
@@ -355,8 +346,6 @@ class CommonsApi_Importer
     private function preprocessSiteCss($data)
     {
         $css = "h1 {color: " . $data['commons_title_color'] .  "; }";
-
-
         $data['css'] = $css;
         unset($data['commons_title_color']);
         return $data;

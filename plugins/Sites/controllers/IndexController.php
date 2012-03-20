@@ -17,8 +17,12 @@ class Sites_IndexController extends Omeka_Controller_Action
         $site = $db->getTable('Site')->find($id);
         $site->added = Zend_Date::now()->toString('yyyy-MM-dd HH:mm:ss');
         $site->save();
+        try {
+            $this->sendApprovalEmail($site);
+        } catch (Exception $e) {
 
-        $this->sendApprovalEmail($site);
+        }
+
         $responseArray = array('id' => $id, 'added'=>$site->added);
         $this->_helper->json(json_encode($responseArray));
     }

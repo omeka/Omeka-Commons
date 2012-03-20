@@ -8,4 +8,9 @@ class CommonsApiImport extends Omeka_Record
     public $time;
     public $status;
 
+
+    protected function beforeSave()
+    {
+        $this->status = serialize($this->status);
+    }
 }

@@ -15,9 +15,11 @@ class CommonsApiPlugin extends Omeka_Plugin_Abstract
         $sql = "
             CREATE TABLE `$db->CommonsApiImport` (
             `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-            `site_id` INT UNSIGNED NOT NULL ,
+            `site_id` INT UNSIGNED DEFAULT NULL ,
             `time` INT UNSIGNED NOT NULL ,
-            `status` TEXT NOT NULL ,
+            `status` TEXT DEFAULT NULL ,
+            `last_update` text COLLATE utf8_unicode_ci NOT NULL,
+             `last_update_status` text COLLATE utf8_unicode_ci NOT NULL,
             INDEX ( `site_id` )
             ) ENGINE = MYISAM CHARACTER SET utf8 COLLATE utf8_unicode_ci;
         ";

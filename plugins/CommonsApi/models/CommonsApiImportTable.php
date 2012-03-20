@@ -15,6 +15,13 @@ class CommonsApiImportTable extends Omeka_Db_Table
     }
 
 
-
+    public function recordFromData($data)
+    {
+        $data['status'] = unserialize($data['status']);
+        $class = $this->_target;
+        $obj = new $class($this->_db);
+        $obj->setArray($data);
+        return $obj;
+    }
 
 }

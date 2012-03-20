@@ -6,12 +6,13 @@ class CommonsApi_SiteController extends Omeka_Controller_Action
 
     public function applyAction()
     {
-        $data = json_decode($_POST['data'], true);
+        //$data = json_decode($_POST['data'], true);
+        $data = $_POST['data'];
         $sites = get_db()->getTable('Site')->findBy(array('url'=>$data['site']['url']));
         if(empty($sites)) {
             $site = new Site();
         } else {
-            $response = array('status'=>'OK', 'message'=>'Already exists');
+            $response = array('status'=>'EXISTS', 'message'=>'If you are having trouble sending data, please contacts us.');
             $this->_helper->json($response);
             die();
 

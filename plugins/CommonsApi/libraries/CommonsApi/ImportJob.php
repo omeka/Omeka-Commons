@@ -2,36 +2,46 @@
 
 class CommonsApi_ImportJob extends Omeka_JobAbstract
 {
+    protected $data;
+    protected $import;
 
     public function perform()
     {
-
-        $data = json_decode($_POST['data'], true);
-        try {
-            $import = new CommonsApiImport();
-        } catch (Exception $e) {
-            _log($e);
+        $data = json_decode($this->data, true);
+        // $import = $this->import;
+        $sites = get_db()->getTable('Site')->findBy(array('url'=> $data['site_url']), 1);
+        $errors = false;
+        if(empty($sites)) {
+            // $import->status['status'] = 'fail';
+            // $import->status['messages'] = 'Invalid Site URL';
+            $errors = true;
+            _log("Site " . $data['site_url'] . " does not exist.");
         }
 
-
-
-        $sites = get_db()->getTable('Site')->findBy(array('url'=> $data['site_url']));
         $site = $sites[0];
+        // $import->site_id = $site->id;
+
+        if(is_null($site->added)) {
+            // $import->status['status'] = 'fail';
+            // $import->status['messages'] = 'Site not yet approved. Check back later';
+            $errors = true;
+            _log("Site " . $data['site_url'] . " not yet approved.");
+        }
 
         //check that the keys match!
         if($data['key'] != $site->key) {
             _log('invalid key: ' . $data['site_url']);
-            return;
+            // $import->status['status'] = 'fail';
+            // $import->status['messages'] = 'Invalid key';
+            $errors = true;
+            _log("Site " . $data['site_url'] . " has a bad key: " . $data['key']);
+        }
+        if($errors) {
+            // $import->save();
+            return false;
         }
 
-        $import->site_id = $site->id;
-        $import->time = time();
-
-        try {
-            $importer = new CommonsApi_Importer($data);
-        } catch (Exception $e) {
-            _log($e);
-        }
+        $importer = new CommonsApi_Importer($data, $site);
 
         if(isset($data['deleteItem'])) {
             $params = array(
@@ -56,7 +66,6 @@ class CommonsApi_ImportJob extends Omeka_JobAbstract
                     _log($e);
                 }
             }
-
         }
 
         if(isset($data['exhibits'])) {
@@ -81,13 +90,21 @@ class CommonsApi_ImportJob extends Omeka_JobAbstract
         } catch (Exception $e) {
             _log($e);
         }
-        $import->status = serialize($importer->response);
-        $import->save();
+        //$import->status = $importer->response;
+        //_log(print_r($import->status, true));
+        //$import->save();
 
+        return true;
     }
 
+    protected function setImport($importArray)
+    {
+        //when the import arrives, it has been converted back to an array, so dig the real import record back up
+       // $this->import = get_db()->getTable('CommonsApiImport')->find($importArray['id']);
+    }
 
-
-
-
+    protected function setData($data)
+    {
+        $this->data = $data;
+    }
 }
