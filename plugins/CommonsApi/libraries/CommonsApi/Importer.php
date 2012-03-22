@@ -41,7 +41,6 @@ class CommonsApi_Importer
         }
 
         if(!empty($_FILES['logo']['name'])) {
-
             $fileName = $this->site->id  . $_FILES['logo']['name'];
             $filePath = SITES_PLUGIN_DIR . '/views/images/' . $fileName;
             if(!move_uploaded_file($_FILES['logo']['tmp_name'], $filePath)) {
@@ -53,7 +52,7 @@ class CommonsApi_Importer
         }
 
         $this->site->last_import = Zend_Date::now()->toString('yyyy-MM-dd HH:mm:ss');
-        $data = $this->preprocessSiteCss($data);
+        $data = $this->preprocessSiteCss($this->data['site']);
         foreach($data as $field=>$value) {
             $this->site->$field = $value;
         }

@@ -6,6 +6,9 @@ $bodyclass = 'page display-case';
 <?php head(array('title' => $site->title , 'bodyclass' => $bodyclass)); ?>
 <div id="primary">
 <h1><?php echo $site->title; ?></h1>
+<div style='float:right'>
+<?php echo sites_site_logo($site); ?>
+</div>
     <div id="overview">
     <h2>Overview</h2>
     <?php echo $site->description; ?>

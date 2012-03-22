@@ -28,6 +28,11 @@ class CommonsApi_ImportController extends Omeka_Controller_Action
     public function indexAction()
     {
         $data = json_decode($_POST['data'], true);
+
+        if(isset($data['configSite'])) {
+            $this->importer->processSite();
+        }
+
         if(isset($data['collections'])) {
             foreach($data['collections'] as $collectionData) {
                 try {
