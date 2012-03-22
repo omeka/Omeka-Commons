@@ -27,11 +27,11 @@ class CommonsApi_ImportController extends Omeka_Controller_Action
 
     public function indexAction()
     {
-        $data = $_POST['data'];
+        $data = json_decode($_POST['data'], true);
         if(isset($data['collections'])) {
             foreach($data['collections'] as $collectionData) {
                 try {
-                    $importer->processContext($collectionData, 'Collection');
+                    $this->importer->processContext($collectionData, 'Collection');
                 } catch (Exception $e) {
                     _log($e);
                 }
@@ -41,9 +41,9 @@ class CommonsApi_ImportController extends Omeka_Controller_Action
         if(isset($data['exhibits'])) {
             foreach($data['exhibits'] as $index=>$exhibitData) {
                 try {
-                    $importer->processContext($data['exhibits'][$index]['exhibit'], 'Exhibit');
-                    $importer->processContext($data['exhibits'][$index]['section'], 'ExhibitSection');
-                    $importer->processContext($data['exhibits'][$index]['page'], 'ExhibitSectionPage');
+                    $this->importer->processContext($data['exhibits'][$index]['exhibit'], 'Exhibit');
+                    $this->importer->processContext($data['exhibits'][$index]['section'], 'ExhibitSection');
+                    $this->importer->processContext($data['exhibits'][$index]['page'], 'ExhibitSectionPage');
                 } catch (Exception $e) {
                     _log($e);
                 }
@@ -53,15 +53,15 @@ class CommonsApi_ImportController extends Omeka_Controller_Action
         if(!empty($data['items'])) {
             foreach($data['items'] as $item) {
                 try {
-                    $importer->processItem($item);
+                    $this->importer->processItem($item);
                 } catch (Exception $e) {
                     _log($e);
                 }
             }
         }
 
-        //$jobDispatcher->send('CommonsApi_ImportJob', $options);
-       // $response = array('importId'=>$import->id);
-        //$this->_helper->json($response);
+        $responseArray = $this->importer->status;
+        $response = json_encode($responseArray);
+        $this->_helper->json($response);
     }
 }

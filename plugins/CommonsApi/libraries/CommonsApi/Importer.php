@@ -4,6 +4,7 @@ class CommonsApi_Importer
 {
     public $data = array();
     public $status = array();
+    public $hasErrors = false;
     public $has_container_id;
     public $site;
     public $site_url;
@@ -15,7 +16,8 @@ class CommonsApi_Importer
         if(! is_array($data)) {
             $data = json_decode($data, true);
         }
-
+        $this->sites['items'] = array();
+        $this->sites['collections'] = array();
         $this->db = get_db();
         Omeka_Context::getInstance()->setAcl(null);
 
@@ -44,6 +46,8 @@ class CommonsApi_Importer
             $filePath = SITES_PLUGIN_DIR . '/views/images/' . $fileName;
             if(!move_uploaded_file($_FILES['logo']['tmp_name'], $filePath)) {
                 _log('Could not save the file to ' . $filePath);
+                $this->hasErrors = true;
+                $this->status[] = array('errorMessage' =>'Could not save the file to ' . $filePath );
             }
             $this->site->logo_url = WEB_ROOT . '/plugins/Sites/views/images/' . $fileName;
         }
@@ -59,7 +63,6 @@ class CommonsApi_Importer
 
     public function processItem($data)
     {
-
         $siteItem = $this->db->getTable('SiteItem')->findBySiteIdAndOrigId($this->site->id, $data['orig_id']);
 
         if($siteItem) {
@@ -83,13 +86,19 @@ class CommonsApi_Importer
         $siteItem->item_id = $item->id;
         $siteItem->url = $data['url'];
         $siteItem->license = $data['license'];
-        $siteItem->save();
+        try {
+            $siteItem->save();
+            $this->status['items'][$siteItem->orig_id] = array('status'=>'ok', 'commons_item_id'=>$item->id, 'status_message'=>'OK');
+        } catch(Exception $e) {
+            _log($e);
+            $this->hasErrors = true;
+            $this->status['items'][$siteItem->orig_id] = array('status'=>'error', 'commons_item_id'=>$item->id, 'status_message'=>$e->getMessage());
+        }
 
         //update or add to collection information via RecordRelations
         $has_container = $this->db->getTable('RecordRelationsProperty')->findByVocabAndPropertyName(SIOC, 'has_container');
 
         if(isset($data['collection'])) {
-
             //collections are imported before items, so this should already exist
             $siteCollection = $this->db->getTable('SiteContext_Collection')->findBySiteIdAndOrigId($this->site->id,$data['collection']);
             $this->buildRelation($siteItem, $siteCollection);
@@ -192,7 +201,7 @@ class CommonsApi_Importer
             $item = insert_item($itemMetadata, $itemElementTexts);
         } catch (Exception $e) {
             _log($e);
-            $this->addError(array('error'=>$e));
+            $this->status[] = array('status'=>'error', 'error'=>$e);
         }
         return $item;
     }
@@ -207,7 +216,8 @@ class CommonsApi_Importer
         try {
             update_item($item, $itemMetadata, $itemElementTexts);
         } catch (Exception $e) {
-
+            _log($e);
+            $this->status[] = array('status'=>'error', 'error'=>$e);
         }
 
 
