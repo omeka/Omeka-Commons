@@ -87,11 +87,11 @@ class CommonsApi_Importer
         $siteItem->license = $data['license'];
         try {
             $siteItem->save();
-            $this->status['items'][$siteItem->orig_id] = array('status'=>'ok', 'commons_item_id'=>$item->id, 'status_message'=>'OK');
+            $this->status['items'][$siteItem->orig_id] = array('status'=>'ok', 'commons_id'=>$item->id, 'status_message'=>'OK');
         } catch(Exception $e) {
             _log($e);
             $this->hasErrors = true;
-            $this->status['items'][$siteItem->orig_id] = array('status'=>'error', 'commons_item_id'=>$item->id, 'status_message'=>$e->getMessage());
+            $this->status['items'][$siteItem->orig_id] = array('status'=>'error', 'commons_id'=>$item->id, 'status_message'=>$e->getMessage());
         }
 
         //update or add to collection information via RecordRelations
@@ -135,7 +135,13 @@ class CommonsApi_Importer
             $contextRecord->$key = $value;
         }
         $contextRecord->last_update = Zend_Date::now()->toString('yyyy-MM-dd HH:mm:ss');
-        $contextRecord->save();
+        try {
+            $contextRecord->save();
+            $this->status[$context . 's'][$contextRecord->id] = array('status'=>'ok', 'commons_id'=>$contextRecord->id, 'status_message'=>'OK');
+        } catch(Exception $e) {
+            $this->status[$context . 's'][$contextRecord->id] = array('status'=>'fail', 'commons_id'=>$contextRecord->id, 'status_message'=>$e->getMessage());
+        }
+
         return $contextRecord;
     }
 
