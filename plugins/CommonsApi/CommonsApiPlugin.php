@@ -19,19 +19,19 @@ class CommonsApiPlugin extends Omeka_Plugin_Abstract
             `time` INT UNSIGNED NOT NULL ,
             `status` TEXT DEFAULT NULL ,
             `last_update` text COLLATE utf8_unicode_ci NOT NULL,
-             `last_update_status` text COLLATE utf8_unicode_ci NOT NULL,
+            `last_update_status` text COLLATE utf8_unicode_ci NOT NULL,
             INDEX ( `site_id` )
             ) ENGINE = MYISAM CHARACTER SET utf8 COLLATE utf8_unicode_ci;
         ";
 
-        $db->exec($sql);
+        $db->query($sql);
     }
 
     public function hookUninstall()
     {
         $db = get_db();
         $sql = "DROP TABLE IF EXISTS `$db->CommonsApiImport`";
-        $db->exec($sql);
+        $db->query($sql);
     }
 
 

@@ -159,7 +159,7 @@ class CommonsApi_Importer
     {
         $options = array(
             'subject_record_type' => 'SiteItem',
-            'subject_id' => $siteItem->id,
+            'subject_id' => $item->id,
             'object_record_type' => get_class($contextRecord),
             'object_id' => $contextRecord->id,
             'property_id' => $this->has_container_id,
