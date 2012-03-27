@@ -3,10 +3,8 @@
 class CommonsApi_SiteController extends Omeka_Controller_Action
 {
 
-
     public function applyAction()
     {
-        //$data = json_decode($_POST['data'], true);
         $data = $_POST['data'];
         $sites = get_db()->getTable('Site')->findBy(array('url'=>$data['site']['url']));
         if(empty($sites)) {
@@ -27,13 +25,7 @@ class CommonsApi_SiteController extends Omeka_Controller_Action
         }
         $salt = substr(md5(mt_rand()), 0, 16);
         $site->key = sha1($salt . $site->url . microtime() );
-
         $site->save();
-
         $this->_helper->json($response);
     }
-
-
-
-
 }

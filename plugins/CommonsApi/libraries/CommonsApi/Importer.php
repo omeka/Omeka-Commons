@@ -36,8 +36,9 @@ class CommonsApi_Importer
 
     public function processSite()
     {
-
-        $this->site->branding = array();
+        if(!is_dir(SITES_PLUGIN_DIR . '/views/images/' . $this->site->id)) {
+            mkdir(SITES_PLUGIN_DIR . '/views/images/' . $this->site->id);
+        }
         if(!empty($_FILES['logo']['name'])) {
             $fileName = $this->site->id  .  '/' . $_FILES['logo']['name'];
             $filePath = SITES_PLUGIN_DIR . '/views/images/' . $fileName;
