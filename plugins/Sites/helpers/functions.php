@@ -56,6 +56,11 @@ function sites_site_css($site)
 
 function sites_site_logo($site)
 {
-    return "<img id='sites-logo' src='" . $site->logo_url . "'/>";
+    return "<img id='sites-logo' src='" . $site->branding['logo'] . "'/>";
+}
+
+function sites_site_banner($site)
+{
+    return "<img id='sites-banner' src='" . $site->branding['banner'] . "'/>";
 }
 

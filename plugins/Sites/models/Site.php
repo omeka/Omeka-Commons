@@ -15,5 +15,12 @@ class Site extends Omeka_Record
     public $author_info;
     public $css;
     public $logo_url;
+    public $branding;
+
+
+    public function beforeSave()
+    {
+        $this->branding = serialize($this->branding);
+    }
 
 }

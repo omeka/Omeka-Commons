@@ -16,8 +16,8 @@ class CommonsApi_Importer
         if(! is_array($data)) {
             $data = json_decode($data, true);
         }
-        $this->sites['items'] = array();
-        $this->sites['collections'] = array();
+        $this->site['items'] = array();
+        $this->site['collections'] = array();
         $this->db = get_db();
         Omeka_Context::getInstance()->setAcl(null);
 
@@ -36,19 +36,28 @@ class CommonsApi_Importer
 
     public function processSite()
     {
-        foreach($this->data['site'] as $key=>$value) {
-            $this->site->$key = $value;
-        }
 
+        $this->site->branding = array();
         if(!empty($_FILES['logo']['name'])) {
-            $fileName = $this->site->id  . $_FILES['logo']['name'];
+            $fileName = $this->site->id  .  '/' . $_FILES['logo']['name'];
             $filePath = SITES_PLUGIN_DIR . '/views/images/' . $fileName;
             if(!move_uploaded_file($_FILES['logo']['tmp_name'], $filePath)) {
                 _log('Could not save the file to ' . $filePath);
                 $this->hasErrors = true;
                 $this->status[] = array('errorMessage' =>'Could not save the file to ' . $filePath );
             }
-            $this->site->logo_url = WEB_ROOT . '/plugins/Sites/views/images/' . $fileName;
+            $this->site->branding['logo'] = WEB_ROOT . '/plugins/Sites/views/images/' . $fileName;
+        }
+
+        if(!empty($_FILES['banner']['name'])) {
+            $fileName = $this->site->id . '/' . $_FILES['banner']['name'];
+            $filePath = SITES_PLUGIN_DIR . '/views/images/' . $fileName;
+            if(!move_uploaded_file($_FILES['banner']['tmp_name'], $filePath)) {
+                _log('Could not save the file to ' . $filePath);
+                $this->hasErrors = true;
+                $this->status[] = array('errorMessage' =>'Could not save the file to ' . $filePath );
+            }
+            $this->site->branding['banner'] = WEB_ROOT . '/plugins/Sites/views/images/' . $fileName;
         }
 
         $this->site->last_import = Zend_Date::now()->toString('yyyy-MM-dd HH:mm:ss');

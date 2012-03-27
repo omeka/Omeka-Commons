@@ -7,7 +7,7 @@ class CommonsApi_ImportController extends Omeka_Controller_Action
     public function init()
     {
         $this->importer = new CommonsApi_Importer($_POST['data']);
-        //handle errors
+
     }
 
     public function deleteItemAction()

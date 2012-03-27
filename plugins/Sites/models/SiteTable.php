@@ -37,12 +37,18 @@ class SiteTable extends Omeka_Db_Table
         $select = $itemTable->getSelectForFindBy($params);
         $select->join(array('sit'=>$this->_db->SiteItem), 'sit.item_id = i.id', array());
         $select->where("sit.site_id = ? ", $siteId);
-        _log($select);
         return $itemTable->fetchObjects($select);
     }
 
     public function orderSelectByRandom($select)
-        {
-            $select->order('RAND()');
-        }
+    {
+        $select->order('RAND()');
+    }
+
+    protected function recordFromData($data)
+    {
+        $record = parent::recordFromData($data);
+        $record->branding = unserialize($record->branding);
+        return $record;
+    }
 }
