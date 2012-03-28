@@ -189,6 +189,24 @@ class SitesPlugin extends Omeka_Plugin_Abstract
           );
         record_relations_install_properties($europeanaProps);
 
+        $commonsProps = array(
+              array(
+                    'name' => 'Commons',
+                    'description' => 'Commons relations',
+                    'namespace_prefix' => 'commons',
+                    'namespace_uri' => 'http://ns.omeka-commons.org/',
+                    'properties' => array(
+                        array(
+                            'local_part' => 'usesTag',
+                            'label' => 'Uses Tag',
+                            'description' => 'The subject Site uses the object Tag'
+                        ),                    )
+                )
+
+          );
+
+        record_relations_install_properties($commonsProps);
+
         blocks_register_blocks(array('CommonsOriginalInfoBlock', 'CommonsSiteInfoBlock' ));
     }
 

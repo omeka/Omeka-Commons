@@ -40,6 +40,19 @@ class SiteTable extends Omeka_Db_Table
         return $itemTable->fetchObjects($select);
     }
 
+    public function findTagsForSite($site)
+    {
+        if(is_numeric($site)) {
+            $siteId = $site;
+        } else {
+            $siteId = $site->id;
+        }
+
+
+
+
+    }
+
     public function orderSelectByRandom($select)
     {
         $select->order('RAND()');

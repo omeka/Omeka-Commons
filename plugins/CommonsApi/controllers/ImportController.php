@@ -67,7 +67,6 @@ class CommonsApi_ImportController extends Omeka_Controller_Action
 
         }
         $responseArray = $this->importer->status;
-_log(print_r($responseArray, true));
         $response = json_encode($responseArray);
 
         $this->_helper->json($response);

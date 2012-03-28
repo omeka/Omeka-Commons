@@ -155,16 +155,21 @@ class CommonsApi_Importer
         return $contextRecord;
     }
 
-    public function buildRelation($item, $contextRecord)
+    public function buildRelation($item, $contextRecord, $options = null)
     {
-        $options = array(
-            'subject_record_type' => 'SiteItem',
-            'subject_id' => $item->id,
-            'object_record_type' => get_class($contextRecord),
-            'object_id' => $contextRecord->id,
-            'property_id' => $this->has_container_id,
-            'user_id' => 1
-        );
+        //default is to build around an item. otherwise a full $options array
+        //can come in, and $item and $contextRecord are ignored
+
+        if(!$options) {
+            $options = array(
+                'subject_record_type' => 'SiteItem',
+                'subject_id' => $item->id,
+                'object_record_type' => get_class($contextRecord),
+                'object_id' => $contextRecord->id,
+                'property_id' => $this->has_container_id,
+                'user_id' => 1
+            );
+        }
 
         //use record relations here, so we can keep the history if a site
         //changes the collection an item is in
@@ -203,6 +208,22 @@ class CommonsApi_Importer
     public function processItemTags($item, $tags)
     {
         $item->addTags($tags);
+        //maybe make core return tags when added?
+        $tags = $item->getTags();
+
+        $usesTag = $this->db->getTable('RecordRelationsProperty')->findByVocabAndPropertyName('http://ns.omeka-commons.org/', 'usesTag');
+        //build the relations using omeka:usesTag property
+        foreach($tags as $tag) {
+            $options = array(
+                'subject_record_type' => 'Site',
+                'subject_id' => $this->site->id,
+                'object_record_type' => 'Tag',
+                'object_id' => $tag->id,
+                'property_id' => $usesTag->id,
+                'user_id' => 1
+            );
+            $this->buildRelation(null, null, $options);
+        }
     }
 
     public function importItem($data)

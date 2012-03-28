@@ -1,16 +1,15 @@
 <?php
 queue_js('sites');
+queue_css('sites');
 $head = array('bodyclass' => 'sites primary',
               'title' => html_escape('Installations'));
 head($head);
 
 function approve_link($site) {
-    
     if(empty($site->added)) {
         return "<span class='approve' id='approve-" . $site->id . "'>Approve</span>";
     }
     return $site->added;
-    
 }
 ?>
 <h1><?php echo $head['title']; ?></h1>
@@ -30,24 +29,24 @@ function approve_link($site) {
             </ul>
         </div>
     </div>
-    
-    
-    
+
+
+
     <table>
-    	<thead>
-    	<tr>
-    	<th>Title</th>
-    	<th>Description</th>
-    	<th>URL</th>
-    	<th>Admin Email</th>
-    	<th>Author</th>
-    	<th>Site Copyright</th>
-    	<th>Last Import</th>
-    	<th>Approved</th>
-    	</tr>
-    	
-    	</thead>
-    	<tbody>
+        <thead>
+        <tr>
+        <th>Title</th>
+        <th>Description</th>
+        <th>URL</th>
+        <th>Admin Email</th>
+        <th>Author</th>
+        <th>Site Copyright</th>
+        <th>Last Import</th>
+        <th>Approved</th>
+        </tr>
+
+        </thead>
+        <tbody>
         <?php foreach($sites as $site): ?>
         <tr>
         <td><?php echo $site->title; ?></td>
@@ -58,11 +57,11 @@ function approve_link($site) {
         <td><?php echo $site->copyright_info; ?></td>
         <td><?php echo $site->last_import; ?></td>
         <td><?php echo approve_link($site); ?></td>
-                
+
         </tr>
         <?php endforeach; ?>
-    	
-    	</tbody>
+
+        </tbody>
 
     </table>
 </div>
