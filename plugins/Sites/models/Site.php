@@ -14,7 +14,6 @@ class Site extends Omeka_Record
     public $copyright_info;
     public $author_info;
     public $css;
-    public $logo_url;
     public $branding;
 
 

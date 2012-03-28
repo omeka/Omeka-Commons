@@ -47,7 +47,7 @@ class SitesPlugin extends Omeka_Plugin_Abstract
           `copyright_info` text,
           `author_info` text NULL,
           `css` text NULL,
-          `logo_url` text NULL,
+          `branding` text NULL,
           PRIMARY KEY (`id`)
         ) ENGINE=MyISAM CHARACTER SET utf8 COLLATE utf8_unicode_ci
 
@@ -206,7 +206,7 @@ class SitesPlugin extends Omeka_Plugin_Abstract
                 `$db->SiteToken` ;
         ";
 
-        $db->exec($sql);
+        $db->query($sql);
 
         blocks_unregister_blocks(array('CommonsOriginalInfoBlock', 'CommonsSiteInfoBlock' ));
     }

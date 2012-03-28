@@ -28,45 +28,48 @@ class CommonsApi_ImportController extends Omeka_Controller_Action
     public function indexAction()
     {
         $data = json_decode($_POST['data'], true);
+        if(!$this->importer->hasErrors) {
+            if(isset($data['configSite'])) {
+                $this->importer->processSite();
+            }
 
-        if(isset($data['configSite'])) {
-            $this->importer->processSite();
-        }
-
-        if(isset($data['collections'])) {
-            foreach($data['collections'] as $collectionData) {
-                try {
-                    $this->importer->processContext($collectionData, 'Collection');
-                } catch (Exception $e) {
-                    _log($e);
+            if(isset($data['collections'])) {
+                foreach($data['collections'] as $collectionData) {
+                    try {
+                        $this->importer->processContext($collectionData, 'Collection');
+                    } catch (Exception $e) {
+                        _log($e);
+                    }
                 }
             }
-        }
 
-        if(isset($data['exhibits'])) {
-            foreach($data['exhibits'] as $index=>$exhibitData) {
-                try {
-                    $this->importer->processContext($data['exhibits'][$index]['exhibit'], 'Exhibit');
-                    $this->importer->processContext($data['exhibits'][$index]['section'], 'ExhibitSection');
-                    $this->importer->processContext($data['exhibits'][$index]['page'], 'ExhibitSectionPage');
-                } catch (Exception $e) {
-                    _log($e);
+            if(isset($data['exhibits'])) {
+                foreach($data['exhibits'] as $index=>$exhibitData) {
+                    try {
+                        $this->importer->processContext($data['exhibits'][$index]['exhibit'], 'Exhibit');
+                        $this->importer->processContext($data['exhibits'][$index]['section'], 'ExhibitSection');
+                        $this->importer->processContext($data['exhibits'][$index]['page'], 'ExhibitSectionPage');
+                    } catch (Exception $e) {
+                        _log($e);
+                    }
                 }
             }
-        }
 
-        if(!empty($data['items'])) {
-            foreach($data['items'] as $item) {
-                try {
-                    $this->importer->processItem($item);
-                } catch (Exception $e) {
-                    _log($e);
+            if(!empty($data['items'])) {
+                foreach($data['items'] as $item) {
+                    try {
+                        $this->importer->processItem($item);
+                    } catch (Exception $e) {
+                        _log($e);
+                    }
                 }
             }
-        }
 
+        }
         $responseArray = $this->importer->status;
+_log(print_r($responseArray, true));
         $response = json_encode($responseArray);
+
         $this->_helper->json($response);
     }
 }

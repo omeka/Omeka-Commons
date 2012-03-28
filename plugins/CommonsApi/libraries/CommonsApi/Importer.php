@@ -335,6 +335,7 @@ class CommonsApi_Importer
     public function validate($data)
     {
         if(!isset($data['key']) || !isset($data['site_url'])) {
+            $this->hasErrors = true;
             return false;
         }
         return true;
@@ -343,35 +344,36 @@ class CommonsApi_Importer
     public function setSite()
     {
         $sites = get_db()->getTable('Site')->findBy(array('url'=> $this->data['site_url']), 1);
-        $errors = false;
         if(empty($sites)) {
-            // $import->status['status'] = 'fail';
-            // $import->status['messages'] = 'Invalid Site URL';
-            $errors = true;
+            $this->status['status'] = 'error';
+            $this->status['messages'] = 'Invalid Site URL';
+            $this->hasErrors = true;
             _log("Site " . $this->data['site_url'] . " does not exist.");
+            return false;
         }
 
         $site = $sites[0];
-        // $import->site_id = $site->id;
 
         if(is_null($site->added)) {
-            // $import->status['status'] = 'fail';
-            // $import->status['messages'] = 'Site not yet approved. Check back later';
-            $errors = true;
+            $this->status['status'] = 'error';
+            $this->status['messages'] = 'Site not yet approved. Check back later';
+            $this->hasErrors = true;
             _log("Site " . $this->data['site_url'] . " not yet approved.");
+            return false;
         }
 
         //check that the keys match!
         if($this->data['key'] != $site->key) {
             _log('invalid key: ' . $this->data['site_url']);
-            // $import->status['status'] = 'fail';
-            // $import->status['messages'] = 'Invalid key';
-            $errors = true;
+            $this->status['status'] = 'error';
+            $this->status['messages'] = 'Invalid key';
+            $this->hasErrors = true;
             _log("Site " . $this->data['site_url'] . " has a bad key: " . $this->data['key']);
+            return false;
         }
 
         $this->site = $site;
-        return $errors;
+        return true;
     }
 
     public function preprocessSiteCss($data)
