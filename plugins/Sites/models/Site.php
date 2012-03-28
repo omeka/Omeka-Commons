@@ -19,6 +19,9 @@ class Site extends Omeka_Record
 
     public function beforeSave()
     {
+        if(!is_array($this->branding)) {
+            $this->branding = array();
+        }
         $this->branding = serialize($this->branding);
     }
 

@@ -36,27 +36,25 @@ class CommonsApi_Importer
 
     public function processSite()
     {
-        if(!is_dir(SITES_PLUGIN_DIR . '/views/images/' . $this->site->id)) {
-            mkdir(SITES_PLUGIN_DIR . '/views/images/' . $this->site->id);
+        if(!is_dir(PLUGIN_DIR . '/Sites/views/images/' . $this->site->id)) {
+            mkdir(PLUGIN_DIR . '/Sites/views/images/' . $this->site->id);
         }
         if(!empty($_FILES['logo']['name'])) {
             $fileName = $this->site->id  .  '/' . $_FILES['logo']['name'];
-            $filePath = SITES_PLUGIN_DIR . '/views/images/' . $fileName;
+            $filePath = PLUGIN_DIR . '/Sites/views/images/' . $fileName;
             if(!move_uploaded_file($_FILES['logo']['tmp_name'], $filePath)) {
                 _log('Could not save the file to ' . $filePath);
-                $this->hasErrors = true;
-                $this->status[] = array('errorMessage' =>'Could not save the file to ' . $filePath );
+                $this->status[] = array('status'=>'error', 'messages'=>'Could not save the file to ' . $filePath );
             }
             $this->site->branding['logo'] = WEB_ROOT . '/plugins/Sites/views/images/' . $fileName;
         }
 
         if(!empty($_FILES['banner']['name'])) {
             $fileName = $this->site->id . '/' . $_FILES['banner']['name'];
-            $filePath = SITES_PLUGIN_DIR . '/views/images/' . $fileName;
+            $filePath = PLUGIN_DIR . '/Sites/views/images/' . $fileName;
             if(!move_uploaded_file($_FILES['banner']['tmp_name'], $filePath)) {
                 _log('Could not save the file to ' . $filePath);
-                $this->hasErrors = true;
-                $this->status[] = array('errorMessage' =>'Could not save the file to ' . $filePath );
+                $this->status[] = array('status'=>'error', 'messages'=>'Could not save the file to ' . $filePath );
             }
             $this->site->branding['banner'] = WEB_ROOT . '/plugins/Sites/views/images/' . $fileName;
         }
