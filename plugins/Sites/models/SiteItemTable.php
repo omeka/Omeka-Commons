@@ -57,7 +57,7 @@ class SiteItemTable extends Omeka_Db_Table
         $select = $sitesTable->getSelect();
         $select->join(array('sit'=>$this->_db->SiteItem), 'sit.site_id = st.id', array());
         $select->where("sit.item_id = ?", $item_id);
-        return $this->fetchObject($select);
+        return $sitesTable->fetchObject($select);
     }
 
     public function findItemForId($id)

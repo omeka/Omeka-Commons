@@ -47,10 +47,6 @@ class SiteTable extends Omeka_Db_Table
         } else {
             $siteId = $site->id;
         }
-
-
-
-
     }
 
     public function orderSelectByRandom($select)
