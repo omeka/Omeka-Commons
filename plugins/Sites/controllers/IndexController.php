@@ -34,16 +34,15 @@ class Sites_IndexController extends Omeka_Controller_Action
             exit;
         }
         $instTokens = $this->getDb()->getTable('SiteToken')->findBy(array('token'=>$token), 1);
-
         $instToken = $instTokens[0];
         if($token != $instToken->token ) {
-            exit;
+            $this->flashError("Token doesn't match our records");
+            $this->view->error = true;
         }
-
         if (time() > $instToken->expiration) {
-            exit;
+            $this->flashError("Token has expired");
+            $this->view->error = true;
         } else {
-            $this->view->assign('debug', array(time(), $instToken->expiration));
             $site = $this->getDb()->getTable('Site')->find($instToken->site_id);
             $this->view->assign('site', $site);
         }
