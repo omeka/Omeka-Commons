@@ -10,7 +10,7 @@ class CommonsApi_SiteController extends Omeka_Controller_Action
         if(empty($sites)) {
             $site = new Site();
         } else {
-            $response = array('status'=>'EXISTS', 'message'=>'If you are having trouble sending data, please contacts us.');
+            $response = array('status'=>'EXISTS', 'message'=>'Your site is already an approved part of the Commons.');
             $this->_helper->json($response);
             die();
 

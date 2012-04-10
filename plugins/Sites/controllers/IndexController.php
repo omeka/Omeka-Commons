@@ -46,7 +46,6 @@ class Sites_IndexController extends Omeka_Controller_Action
             $site = $this->getDb()->getTable('Site')->find($instToken->site_id);
             $this->view->assign('site', $site);
         }
-
     }
 
     private function sendApprovalEmail($site)
