@@ -47,7 +47,8 @@ function approve_link($site) {
 
         </thead>
         <tbody>
-        <?php foreach($sites as $site): ?>
+        <?php while(sites_loop_sites()): ?>
+        <?php $site = sites_get_current_site(); ?>
         <tr>
         <td><?php echo $site->title; ?></td>
         <td><?php echo $site->description; ?></td>
@@ -59,7 +60,7 @@ function approve_link($site) {
         <td><?php echo approve_link($site); ?></td>
 
         </tr>
-        <?php endforeach; ?>
+        <?php endwhile; ?>
 
         </tbody>
 

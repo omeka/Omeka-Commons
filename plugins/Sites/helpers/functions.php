@@ -1,5 +1,31 @@
 <?php
 
+
+
+function sites_loop_sites()
+{
+    return loop_records('sites', sites_get_sites_for_loop(), 'sites_set_current_site');
+}
+
+function sites_get_sites_for_loop()
+{
+    return __v()->sites;
+}
+
+function sites_set_sites_for_loop($sites)
+{
+    __v()->sites = $sites;
+}
+
+function sites_get_current_site()
+{
+    return __v()->site;
+}
+
+function sites_set_current_site($site)
+{
+    __v()->site = $site;
+}
 /**
  * get a link to the original site from which an item came
  *

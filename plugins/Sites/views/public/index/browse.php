@@ -5,7 +5,9 @@ $bodyclass = 'page sites-browse';
 
 <?php head(array('title' => $site->title , 'bodyclass' => $bodyclass)); ?>
 <div id="primary">
-<?php foreach($sites as $site): ?>
+
+<?php while(sites_loop_sites()) : ?>
+
     <div class='site'>
     <h2><?php echo sites_link_to_site($site); ?></h2>
     <?php echo sites_site_logo($site); ?>
@@ -28,6 +30,6 @@ $bodyclass = 'page sites-browse';
     <p><?php echo sites_link_to_original_site($site); ?>
 
     </div>
-<?php endforeach; ?>
+<?php endwhile; ?>
 </div>
 <?php foot(); ?>

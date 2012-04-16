@@ -38,8 +38,7 @@ class Sites_IndexController extends Omeka_Controller_Action
         if($token != $instToken->token ) {
             $this->flashError("Token doesn't match our records");
             $this->view->error = true;
-        }
-        if (time() > $instToken->expiration) {
+        } else if (time() > $instToken->expiration) {
             $this->flashError("Token has expired");
             $this->view->error = true;
         } else {

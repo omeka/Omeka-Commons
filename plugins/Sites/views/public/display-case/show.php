@@ -15,21 +15,21 @@ $bodyclass = 'page display-case';
     <?php echo $site->description; ?>
     <h3>Collections</h3>
     <ul>
-    <?php foreach($collections as $collection): ?>
+    <?php while(loop_collections()) : ?>
         <li>
-        <?php echo $collection->title; ?>
+        <?php echo collection('Title'); ?>
         </li>
-
-    <?php endforeach; ?>
+    <?php endwhile; ?>
     </ul>
     <h3>Exhibits</h3>
     <ul>
-    <?php foreach($exhibits as $exhibit): ?>
+
+    <?php while(loop_exhibits() ) : ?>
         <li>
-        <?php echo $exhibit->title; ?>
+        <?php echo exhibit('Title'); ?>
         </li>
 
-    <?php endforeach; ?>
+    <?php endwhile; ?>
     </ul>
     </div>
 
