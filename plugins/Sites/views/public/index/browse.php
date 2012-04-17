@@ -7,7 +7,7 @@ $bodyclass = 'page sites-browse';
 <div id="primary">
 
 <?php while(sites_loop_sites()) : ?>
-
+<?php $site = sites_get_current_site(); ?>
     <div class='site'>
     <h2><?php echo sites_link_to_site($site); ?></h2>
     <?php echo sites_site_logo($site); ?>
