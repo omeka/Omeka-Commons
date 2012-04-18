@@ -27,36 +27,35 @@ class CommonsApi_Importer
 
         if($this->setSite()) {
             $this->processSite();
-        } else {
-            return false;
         }
+
         $has_container = $this->db->getTable('RecordRelationsProperty')->findByVocabAndPropertyName(SIOC, 'has_container');
         $this->has_container_id = $has_container->id;
     }
 
     public function processSite()
     {
-        if(!is_dir(PLUGIN_DIR . '/Sites/views/images/' . $this->site->id)) {
-            mkdir(PLUGIN_DIR . '/Sites/views/images/' . $this->site->id);
+        if(!is_dir(PLUGIN_DIR . '/Sites/views/public/images/' . $this->site->id)) {
+            mkdir(PLUGIN_DIR . '/Sites/views/public/images/' . $this->site->id);
         }
         if(!empty($_FILES['logo']['name'])) {
             $fileName = $this->site->id  .  '/' . $_FILES['logo']['name'];
-            $filePath = PLUGIN_DIR . '/Sites/views/images/' . $fileName;
+            $filePath = PLUGIN_DIR . '/Sites/views/public/images/' . $fileName;
             if(!move_uploaded_file($_FILES['logo']['tmp_name'], $filePath)) {
                 _log('Could not save the file to ' . $filePath);
                 $this->status[] = array('status'=>'error', 'messages'=>'Could not save the file to ' . $filePath );
             }
-            $this->site->branding['logo'] = WEB_ROOT . '/plugins/Sites/views/images/' . $fileName;
+            $this->site->branding['logo'] = WEB_ROOT . '/plugins/Sites/views/public/images/' . $fileName;
         }
 
         if(!empty($_FILES['banner']['name'])) {
             $fileName = $this->site->id . '/' . $_FILES['banner']['name'];
-            $filePath = PLUGIN_DIR . '/Sites/views/images/' . $fileName;
+            $filePath = PLUGIN_DIR . '/Sites/views/public/images/' . $fileName;
             if(!move_uploaded_file($_FILES['banner']['tmp_name'], $filePath)) {
                 _log('Could not save the file to ' . $filePath);
                 $this->status[] = array('status'=>'error', 'messages'=>'Could not save the file to ' . $filePath );
             }
-            $this->site->branding['banner'] = WEB_ROOT . '/plugins/Sites/views/images/' . $fileName;
+            $this->site->branding['banner'] = WEB_ROOT . '/plugins/Sites/views/public/images/' . $fileName;
         }
 
         $this->site->last_import = Zend_Date::now()->toString('yyyy-MM-dd HH:mm:ss');
@@ -383,7 +382,6 @@ class CommonsApi_Importer
 
         //check that the keys match!
         if($this->data['key'] != $site->key) {
-            _log('invalid key: ' . $this->data['site_url']);
             $this->status['status'] = 'error';
             $this->status['messages'] = 'Invalid key';
             $this->hasErrors = true;

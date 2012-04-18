@@ -10,6 +10,12 @@ class CommonsApi_SiteController extends Omeka_Controller_Action
         if(empty($sites)) {
             $site = new Site();
         } else {
+            $site = $sites[0];
+            if(is_null($site->added)) {
+                $response = array('status'=>'EXISTS', 'message'=>'Your site is still awaiting approval.');
+                $this->_helper->json($response);
+                die();
+            }
             $response = array('status'=>'EXISTS', 'message'=>'Your site is already an approved part of the Commons.');
             $this->_helper->json($response);
             die();
