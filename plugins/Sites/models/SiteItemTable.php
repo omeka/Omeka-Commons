@@ -2,14 +2,12 @@
 
 class SiteItemTable extends Omeka_Db_Table
 {
-    protected $_alias = 'sit';
-
     public function applySearchFilters($select, $params)
     {
         $columns = $this->getColumns();
         foreach($columns as $column) {
             if(array_key_exists($column, $params)) {
-                $select->where($this->_alias . ".$column = ? ", $params[$column]);
+                $select->where("site_items.$column = ? ", $params[$column]);
             }
         }
         return $select;
@@ -35,9 +33,9 @@ class SiteItemTable extends Omeka_Db_Table
         $itemTable = $db->getTable('Item');
         $select = $itemTable->getSelectForFindBy($params);
         foreach($params as $field=>$value) {
-            $select->where("sit.$field = ?", $value);
+            $select->where("site_items.$field = ?", $value);
         }
-        $select->join(array('sit'=>$db->SiteItem), 'sit.item_id = i.id', array());
+        $select->join(array('site_items'=>$db->SiteItem), 'site_items.item_id = items.id', array());
 
         if ($limit) {
             $this->applyPagination($select, $limit, $page);
@@ -55,8 +53,8 @@ class SiteItemTable extends Omeka_Db_Table
 
         $sitesTable = $this->getTable('Site');
         $select = $sitesTable->getSelect();
-        $select->join(array('sit'=>$this->_db->SiteItem), 'sit.site_id = st.id', array());
-        $select->where("sit.item_id = ?", $item_id);
+        $select->join(array('site_items'=>$this->_db->SiteItem), 'site_items.site_id = sites.id', array());
+        $select->where("site_items.item_id = ?", $item_id);
         return $sitesTable->fetchObject($select);
     }
 
@@ -65,8 +63,8 @@ class SiteItemTable extends Omeka_Db_Table
         $db = get_db();
         $itemTable = $db->getTable('Item');
         $select = $itemTable->getSelect();
-        $select->where('sit.id = ?', $id);
-        $select->join(array('sit'=>$db->SiteItems), 'sit.item_id = i.id', array());
+        $select->where('site_items.id = ?', $id);
+        $select->join(array('site_items'=>$db->SiteItems), 'site_items.item_id = items.id', array());
         return $this->getTable('Item')->fetchObject($select);
 
     }

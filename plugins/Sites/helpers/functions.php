@@ -41,7 +41,6 @@ function sites_link_to_site_for_item($item = null)
     }
 
     $site = $db->getTable('SiteItem')->findSiteForItem($item->id);
-
     return sites_link_to_site($site);
 }
 

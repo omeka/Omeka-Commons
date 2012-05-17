@@ -3,15 +3,12 @@
 class SiteTable extends Omeka_Db_Table
 {
 
-    protected $_alias = 'st';
-
-
     public function applySearchFilters($select, $params)
     {
         $columns = $this->getColumns();
         foreach($columns as $column) {
             if(array_key_exists($column, $params)) {
-                $select->where($this->_alias . ".$column = ? ", $params[$column]);
+                $select->where("sites.$column = ? ", $params[$column]);
             }
         }
         if(isset($params['random'])) {
@@ -35,7 +32,7 @@ class SiteTable extends Omeka_Db_Table
         }
         $itemTable = $this->getDb()->getTable('Item');
         $select = $itemTable->getSelectForFindBy($params);
-        $select->join(array('sit'=>$this->_db->SiteItem), 'sit.item_id = i.id', array());
+        $select->join(array('site_items'=>$this->_db->SiteItem), 'site_items.item_id = items.id', array());
         $select->where("sit.site_id = ? ", $siteId);
         return $itemTable->fetchObjects($select);
     }

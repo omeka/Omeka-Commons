@@ -9,7 +9,7 @@ class SiteContextTable extends Omeka_Db_Table
         $columns = $this->getColumns();
         foreach($columns as $column) {
             if(array_key_exists($column, $params)) {
-                $select->where($this->_alias . ".$column = ? ", $params[$column]);
+                $select->where("site_contexts.$column = ? ", $params[$column]);
             }
         }
         return $select;
