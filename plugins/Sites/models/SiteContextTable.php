@@ -6,10 +6,11 @@ class SiteContextTable extends Omeka_Db_Table
 
     public function applySearchFilters($select, $params)
     {
+        $table = $this->getTableName();
         $columns = $this->getColumns();
         foreach($columns as $column) {
             if(array_key_exists($column, $params)) {
-                $select->where("site_contexts.$column = ? ", $params[$column]);
+                $select->where("$column = ? ", $params[$column]);
             }
         }
         return $select;

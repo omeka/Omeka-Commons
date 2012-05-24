@@ -10,7 +10,7 @@ class SiteToken extends Omeka_Record
 
     public function beforeSave()
     {
-        $this->expiration = time() + 60*60*7;
+        $this->expiration = time() + 60*24*7;
     }
 
 }

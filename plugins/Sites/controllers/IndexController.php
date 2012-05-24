@@ -33,16 +33,16 @@ class Sites_IndexController extends Omeka_Controller_Action
         if(!$token) {
             exit;
         }
-        $instTokens = $this->getDb()->getTable('SiteToken')->findBy(array('token'=>$token), 1);
-        $instToken = $instTokens[0];
-        if($token != $instToken->token ) {
+        $siteToken = $this->getDb()->getTable('SiteToken')->findByToken($token);
+
+        if(!$siteToken) {
             $this->flashError("Token doesn't match our records");
             $this->view->error = true;
-        } else if (time() > $instToken->expiration) {
+        } else if (time() > $siteToken->expiration) {
             $this->flashError("Token has expired");
             $this->view->error = true;
         } else {
-            $site = $this->getDb()->getTable('Site')->find($instToken->site_id);
+            $site = $this->getDb()->getTable('Site')->find($siteToken->site_id);
             $this->view->assign('site', $site);
         }
     }
@@ -84,11 +84,11 @@ class Sites_IndexController extends Omeka_Controller_Action
         $token = sha1("tOkenS@1t" . microtime());
         $tokenUrl = WEB_ROOT . '/sites/index/key' . "?token=" . $token;
 
-        $instToken = new SiteToken();
+        $siteToken = new SiteToken();
 
-        $instToken->site_id = $site->id;
-        $instToken->token = $token;
-        $instToken->save();
+        $siteToken->site_id = $site->id;
+        $siteToken->token = $token;
+        $siteToken->save();
         return $tokenUrl;
 
     }
