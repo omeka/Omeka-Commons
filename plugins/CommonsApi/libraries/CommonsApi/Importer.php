@@ -38,6 +38,7 @@ class CommonsApi_Importer
         if(!is_dir(PLUGIN_DIR . '/Sites/views/public/images/' . $this->site->id)) {
             mkdir(PLUGIN_DIR . '/Sites/views/public/images/' . $this->site->id);
         }
+
         if(!empty($_FILES['logo']['name'])) {
             $fileName = $this->site->id  .  '/' . $_FILES['logo']['name'];
             $filePath = PLUGIN_DIR . '/Sites/views/public/images/' . $fileName;

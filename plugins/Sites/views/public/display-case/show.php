@@ -17,7 +17,7 @@ $bodyclass = 'page display-case';
     <ul>
     <?php while(loop_collections()) : ?>
         <li>
-        <?php echo collection('Title'); ?>
+        <?php echo collection('Name'); ?>
         </li>
     <?php endwhile; ?>
     </ul>
@@ -26,7 +26,7 @@ $bodyclass = 'page display-case';
 
     <?php while(loop_exhibits() ) : ?>
         <li>
-        <?php echo exhibit('Title'); ?>
+        <?php echo exhibit('title'); ?>
         </li>
 
     <?php endwhile; ?>
