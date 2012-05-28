@@ -15,18 +15,18 @@ $bodyclass = 'page display-case';
     <?php echo $site->description; ?>
     <h3>Collections</h3>
     <ul>
-    <?php while(loop_collections()) : ?>
+    <?php while(sites_loop_contexts('SiteContext_Collection')) : ?>
         <li>
-        <?php echo collection('Name'); ?>
+        <?php echo sites_link_to_original_context(); ?>
         </li>
     <?php endwhile; ?>
     </ul>
     <h3>Exhibits</h3>
     <ul>
 
-    <?php while(loop_exhibits() ) : ?>
+    <?php while(sites_loop_contexts('SiteContext_Exhibit') ) : ?>
         <li>
-        <?php echo exhibit('title'); ?>
+        <?php echo sites_link_to_original_context(); ?>
         </li>
 
     <?php endwhile; ?>

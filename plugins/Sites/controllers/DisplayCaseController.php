@@ -29,8 +29,8 @@ class Sites_DisplayCaseController extends Omeka_Controller_Action
         $tags = $db->getTable('RecordRelationsRelation')->findObjectRecordsByParams($params);
         $this->view->site = $site;
         $this->view->items = $items;
-        $this->view->collections = $collections;
-        $this->view->exhibits = $exhibits;
+        $this->view->SiteContext_Collections = $collections;
+        $this->view->SiteContext_Exhibits = $exhibits;
         $this->view->tags = $tags;
     }
 
