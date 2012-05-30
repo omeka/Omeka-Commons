@@ -18,7 +18,7 @@ function sites_get_current_context($contextType = null)
 function sites_get_contexts_for_loop($contextType)
 {
     //not bothering with Omeka_Inflector because all the sites contexts just add 's'
-    //see the controller displayCaseAction
+    //see the controller showAction
     $pluralized = $contextType . 's';
     return __v()->$pluralized;
 }

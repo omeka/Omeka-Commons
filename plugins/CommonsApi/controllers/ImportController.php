@@ -13,9 +13,24 @@ class CommonsApi_ImportController extends Omeka_Controller_Action
         }
     }
 
-    public function deleteItemAction()
+    public function privatizeCollectionAction()
     {
-        if(isset($this->data['deleteItem'])) {
+        if(isset($this->data['privatizeCollection'])) {
+            $params = array(
+                'site_id' => $this->importer->site->id,
+                'orig_id' => $this->importer->data['deleteCollection'],
+
+            );
+            $collections = get_db()->getTable('SiteCollection')->findBy($params);
+            $collection = $collections[0];
+            $collection->public = false;
+            $collection->save();
+        }
+    }
+
+    public function privatizeItemAction()
+    {
+        if(isset($this->data['privatizeItem'])) {
             $params = array(
                 'site_id' => $this->importer->site->id,
                 'orig_id' => $this->importer->data['deleteItem'],

@@ -1,3 +1,45 @@
 span.approve {
     cursor: pointer;
 }
+
+
+.sites-sample {
+    border: 1px solid red;
+    margin: 2px;
+}
+
+.sites-site {
+    border: 1px solid red;
+    margin: 2px;
+}
+
+.sites-logo {
+    border: 1px solid red;
+    margin: 2px;
+}
+
+.sites-banner {
+    border: 1px solid red;
+    margin: 2px;
+}
+
+.sites-overview {
+    border: 1px solid red;
+    margin: 2px;
+}
+
+.sites-context {
+    border: 1px solid red;
+    margin: 2px;
+}
+
+.sites-items {
+    border: 1px solid red;
+    margin: 2px;
+}
+
+.sites-random-site {
+    border: 1px solid red;
+    margin: 2px;
+}
+

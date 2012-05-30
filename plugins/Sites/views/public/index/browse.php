@@ -8,14 +8,14 @@ $bodyclass = 'page sites-browse';
 
 <?php while(sites_loop_sites()) : ?>
 <?php $site = sites_get_current_site(); ?>
-    <div class='site'>
+    <div class='sites-site'>
     <h2><?php echo sites_link_to_site($site); ?></h2>
     <?php echo sites_site_logo($site); ?>
     <?php
         $items = sites_random_site_item($site);
         $item = $items[0];
     ?>
-    <div class='site-sample'>
+    <div class='sites-sample'>
         <?php if(!empty($items)): ?>
 
                 <p>Example Item:</p>
