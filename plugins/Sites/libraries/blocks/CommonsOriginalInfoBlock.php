@@ -36,17 +36,17 @@ class CommonsOriginalInfoBlock extends Blocks_Block_Abstract
         $html .= "<p>". sites_link_to_original_site($site) . "</p>";
         $html .= "<p>". $site->description . "</p>";
         if(!empty($collections)) {
-            $html .= "<h2>Collection(s)</h2>";
+            $html .= "<h3>Collection(s)</h3>";
             foreach($collections as $collection) {
                 $html .= "<p><a href='" . $collection->url . "'>" . $collection->title . "</a>: ";
-                $html .= $collection->description . "</p>";
+                $html .= snippet($collection->description, 0, 100) . "</p>";
             }
         }
         if(!empty($exhibits)) {
-            $html .= "<h2>Exhibit(s)</h2>";
+            $html .= "<h3>Exhibit(s)</h3>";
             foreach($exhibits as $exhibit) {
                 $html .= "<p><a href='" . $exhibit->url . "'>" . $exhibit->title . "</a>: ";
-                $html .= $exhibit->description . "</p>";
+                $html .= snippet($exhibit->description, 0, 100) . "</p>";
             }
         }
         $html .= "<p><a href='{$siteItem->url}'>View Original</a>";

@@ -13,6 +13,12 @@ span.approve {
     margin: 2px;
 }
 
+#sites-overview {
+    border: 1px solid red;
+    margin: 2px;
+}
+
+
 .sites-logo {
     border: 1px solid red;
     margin: 2px;

@@ -6,10 +6,10 @@ class SitesPlugin extends Omeka_Plugin_Abstract
 
     protected $_hooks = array(
         'install',
-        'uninstall',
+     //   'uninstall',
         'site_browse_sql',
         'public_theme_header',
-    //    'define_routes'
+        'define_routes'
 
     );
     protected $_filters = array(
