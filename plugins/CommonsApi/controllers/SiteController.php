@@ -25,7 +25,7 @@ class CommonsApi_SiteController extends Omeka_Controller_Action
         if(isset($data['site']['added'])) {
             unset($data['site']['added']);
         }
-        //@TODO: add institution data/table
+
         foreach($data['site'] as $key=>$value) {
             $site->$key = $value;
         }

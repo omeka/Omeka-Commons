@@ -18,8 +18,7 @@ class CommonsApi_ImportController extends Omeka_Controller_Action
         if(isset($this->data['privatizeCollection'])) {
             $params = array(
                 'site_id' => $this->importer->site->id,
-                'orig_id' => $this->importer->data['deleteCollection'],
-
+                'orig_id' => $this->importer->data['privatizeCollection'],
             );
             $collections = get_db()->getTable('SiteCollection')->findBy($params);
             $collection = $collections[0];
@@ -30,22 +29,28 @@ class CommonsApi_ImportController extends Omeka_Controller_Action
 
     public function privatizeItemAction()
     {
-        if(isset($this->data['privatizeItem'])) {
+        $data = json_decode($_POST['data'], true);        
+        if(isset($data['privatizeItem'])) {
             $params = array(
                 'site_id' => $this->importer->site->id,
-                'orig_id' => $this->importer->data['deleteItem'],
+                'orig_id' => $this->importer->data['privatizeItem'],
 
             );
-            $items = get_db()->getTable('SiteItem')->findItemsBy($params);
+            $items = get_db()->getTable('SiteItem')->findItemsBy($params);        
             $item = $items[0];
             $item->public = false;
-            $item->save();
+            $item->save();     
         }
+        $responseArray = $this->importer->status;
+        $response = json_encode($responseArray);        
+        $this->_helper->json($response);        
     }
 
     public function indexAction()
     {
+        
         $data = json_decode($_POST['data'], true);
+        
         if(!$this->importer->hasErrors) {
 
             if(isset($data['collections'])) {
