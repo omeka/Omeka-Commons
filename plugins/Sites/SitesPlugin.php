@@ -9,7 +9,7 @@ class SitesPlugin extends Omeka_Plugin_Abstract
      //   'uninstall',
         'site_browse_sql',
         'public_theme_header',
-        //'define_routes'
+        'after_insert_user' // a little inappropriate since it isn't relevant to this plugin, but just a cheap shortcut since it shouldn't go in Groups
 
     );
     protected $_filters = array(
@@ -18,6 +18,16 @@ class SitesPlugin extends Omeka_Plugin_Abstract
     );
     protected $_options = null;
 
+    public function hookAfterInsertUser($user)
+    {
+        $group = new Group();
+        $group->owner_id = $user->id;
+        $group->visibility = 'closed';
+        $group->title = $user->name . "'s Group";
+        $group->save();        
+        $group->addMember($user);
+    }
+    
     public function hookPublicThemeHeader()
     {
         queue_css('sites');
