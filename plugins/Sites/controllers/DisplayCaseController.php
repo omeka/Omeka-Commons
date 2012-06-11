@@ -15,14 +15,13 @@ class Sites_DisplayCaseController extends Omeka_Controller_Action
         $db = $this->getDb();
         $id = $this->getRequest()->getParam('id');
         $site = $db->getTable('Site')->find($id);
-
         $items = $db->getTable('SiteItem')->findItemsBy(array('site_id' => $id), 3);
         $collections = $db->getTable('SiteContext_Collection')->findBy(array('site_id'=>$id));
         $exhibits = $db->getTable('SiteContext_Exhibit')->findBy(array('site_id'=>$id));
 
         $params = array(
             'subject_record_type'=>'Site',
-            'subject_record_id' => $site->id,
+            'subject_id' => $site->id,
             'object_record_type' => 'Tag'
         );
 
