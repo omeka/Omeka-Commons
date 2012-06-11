@@ -165,7 +165,8 @@ class CommonsApi_Importer
                 'object_record_type' => get_class($contextRecord),
                 'object_id' => $contextRecord->id,
                 'property_id' => $this->has_container_id,
-                'user_id' => 1
+                'user_id' => 1,
+                'public' => true
             );
         }
 

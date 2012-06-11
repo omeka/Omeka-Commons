@@ -9,7 +9,7 @@ class SitesPlugin extends Omeka_Plugin_Abstract
      //   'uninstall',
         'site_browse_sql',
         'public_theme_header',
-        'define_routes'
+        //'define_routes'
 
     );
     protected $_filters = array(
@@ -25,7 +25,7 @@ class SitesPlugin extends Omeka_Plugin_Abstract
 
     public function filterAdminNavigationMain($tabs)
     {
-        $tabs['Sites'] = uri('sites/index/browse');
+        $tabs['Sites'] = uri('sites/index');
         return $tabs;
     }
 

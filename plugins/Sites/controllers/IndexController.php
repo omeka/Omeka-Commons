@@ -3,13 +3,14 @@
 class Sites_IndexController extends Omeka_Controller_Action
 {
 
-    protected $_modelClass = 'Site';
-
+    protected $_browseRecordsPerPage = 10;
+    
     public function init()
     {
         $this->_helper->db->setDefaultModelName('Site');
     }
 
+    
     public function approveAction()
     {
         $db = get_db();

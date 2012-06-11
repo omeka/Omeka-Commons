@@ -14,6 +14,7 @@ class SiteTable extends Omeka_Db_Table
         if(isset($params['random'])) {
             $select = $this->orderSelectByRandom($select);
         }
+        
         return $select;
     }
 

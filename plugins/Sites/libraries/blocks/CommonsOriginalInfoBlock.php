@@ -90,7 +90,8 @@ class CommonsOriginalInfoBlock extends Blocks_Block_Abstract
             'subject_id' => $this->siteItem->id,
             'subject_record_type' => 'SiteItem',
             'property_id' => $pred->id,
-            'object_record_type' => $objectContextType
+            'object_record_type' => $objectContextType,
+            'public' => true
             );
 
         return $db->getTable('RecordRelationsRelation')->findObjectRecordsByParams($relParams);

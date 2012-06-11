@@ -96,7 +96,7 @@ function sites_link_to_original_site($site, $text = null)
 function sites_random_site_item($site)
 {
     $params = array(
-        'hasImage' => true,
+        //'hasImage' => true,
         'random' => true,
         'limit' => 1
     );
