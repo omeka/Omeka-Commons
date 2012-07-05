@@ -20,12 +20,11 @@ class SitesPlugin extends Omeka_Plugin_Abstract
 
     public function hookAfterInsertUser($user)
     {
-        $group = new Group();
-        $group->owner_id = $user->id;
+        $group = new Group();        
         $group->visibility = 'closed';
         $group->title = $user->name . "'s Group";
         $group->save();        
-        $group->addMember($user);
+        $group->addMember($user, 0, 'is_owner');
     }
     
     public function hookPublicThemeHeader()
