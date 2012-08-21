@@ -45,6 +45,7 @@ class SitesPlugin extends Omeka_Plugin_Abstract
         $sql = "
         CREATE TABLE IF NOT EXISTS `$db->Site` (
           `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+          `owner_id` int(10) unsigned NOT NULL,
           `url` text NULL,
           `admin_email` text NULL,
           `title` text NULL,

@@ -2,7 +2,7 @@
 queue_js('sites');
 queue_css('sites');
 $head = array('bodyclass' => 'sites primary',
-              'title' => html_escape('Installations'));
+              'title' => html_escape('Sites'));
 head($head);
 
 function approve_link($site) {
@@ -41,6 +41,7 @@ function approve_link($site) {
         <th>Admin Email</th>
         <th>Author</th>
         <th>Site Copyright</th>
+        <th>Owner</th>
         <th>Last Import</th>
         <th>Approved</th>
         </tr>
@@ -56,6 +57,7 @@ function approve_link($site) {
         <td><?php echo $site->admin_email; ?></td>
         <td><?php echo $site->author; ?></td>
         <td><?php echo $site->copyright_info; ?></td>
+        <td><?php echo $site->Owner->User->name; ?>
         <td><?php echo $site->last_import; ?></td>
         <td><?php echo approve_link($site); ?></td>
 
