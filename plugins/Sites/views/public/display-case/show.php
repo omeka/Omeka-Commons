@@ -1,9 +1,9 @@
 <?php
 
 $bodyclass = 'page display-case';
+echo head(array('title' => $site->title , 'bodyclass' => $bodyclass)); 
 ?>
 
-<?php head(array('title' => $site->title , 'bodyclass' => $bodyclass)); ?>
 <div id="primary">
 <div class='sites-banner'>
 <?php echo sites_site_banner($site); ?>
@@ -17,21 +17,21 @@ $bodyclass = 'page display-case';
     <?php echo $site->description; ?>
     <h3>Collections</h3>
     <ul id='sites-context'>
-    <?php while(sites_loop_contexts('SiteContext_Collection')) : ?>
+    <?php foreach(loop('SiteContext_Collection') as $collection) : ?>
         <li>
         <?php echo sites_link_to_original_context(); ?>
         </li>
-    <?php endwhile; ?>
+    <?php endforeach; ?>
     </ul>
     <h3>Exhibits</h3>
     <ul id='sites-context'>
 
-    <?php while(sites_loop_contexts('SiteContext_Exhibit') ) : ?>
+    <?php foreach(loop('SiteContext_Exhibit') as $exhibit ) : ?>
         <li>
         <?php echo sites_link_to_original_context(); ?>
         </li>
 
-    <?php endwhile; ?>
+    <?php endforeach; ?>
     </ul>
     </div>
 
@@ -42,7 +42,7 @@ $bodyclass = 'page display-case';
     <ul class='sites-items'>
 
     <?php set_items_for_loop($items); ?>
-    <?php while(loop_items()): ?>
+    <?php foreach(loop('item') as $item): ?>
     <li>
     <?php echo link_to_item(); ?>
     <?php if(item_has_thumbnail()): ?>
@@ -52,7 +52,7 @@ $bodyclass = 'page display-case';
     <?php endif; ?>
     </li>
 
-    <?php endwhile; ?>
+    <?php endforeach; ?>
 
     </ul>
     </div>

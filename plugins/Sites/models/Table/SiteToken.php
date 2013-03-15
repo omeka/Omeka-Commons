@@ -1,6 +1,6 @@
 <?php
 
-class SiteTokenTable extends Omeka_Db_Table
+class Table_SiteToken extends Omeka_Db_Table
 {
     public function findByToken($token)
     {

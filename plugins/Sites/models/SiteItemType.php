@@ -1,6 +1,6 @@
 <?php
 
-class Sites_SiteItemType extends Omeka_Record
+class Sites_SiteItemType extends Omeka_Record_AbstractRecord
 {
     public $id;
     public $orig_id;

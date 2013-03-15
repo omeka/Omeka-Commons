@@ -1,6 +1,6 @@
 <?php
 
-class CommonsApi_ImportController extends Omeka_Controller_Action
+class CommonsApi_ImportController extends Omeka_Controller_AbstractActionController
 {
     public $importer;
 

@@ -1,18 +1,7 @@
 <?php
 
-class SiteItemTable extends Omeka_Db_Table
+class Table_SiteItem extends Omeka_Db_Table
 {
-    public function applySearchFilters($select, $params)
-    {
-        $columns = $this->getColumns();
-        foreach($columns as $column) {
-            if(array_key_exists($column, $params)) {
-                $select->where("site_items.$column = ? ", $params[$column]);
-            }
-        }
-        return $select;
-    }
-
 
     public function findBySiteIdAndOrigId($instId, $origId)
     {
@@ -66,8 +55,5 @@ class SiteItemTable extends Omeka_Db_Table
         $select->where('site_items.id = ?', $id);
         $select->join(array('site_items'=>$db->SiteItems), 'site_items.item_id = items.id', array());
         return $this->getTable('Item')->fetchObject($select);
-
     }
-
-
 }

@@ -1,6 +1,6 @@
 <?php
 
-class SiteToken extends Omeka_Record
+class SiteToken extends Omeka_Record_AbstractRecord
 {
     public $id;
     public $site_id;

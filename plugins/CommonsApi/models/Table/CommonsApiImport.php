@@ -2,15 +2,16 @@
 
 class CommonsApiImportTable extends Omeka_Db_Table
 {
-    protected $_alias = 'cai';
 
     public function findMostRecent($siteUrl)
     {
         $db = $this->getDb();
         $select = $this->getSelect();
-        $select->join(array('i'=>$db->Site), 'cai.site_id = i.id', array() );
-        $select->where('i.url = ?', $siteUrl);
-        $select->order("cai.id DESC");
+        $alias = $this->getTableAlias;
+        $siteAlias = $db->getTable('Site')->getTableAlias();
+        $select->join(array($siteAlias=>$db->Site), "$alias.site_id = $siteAlias.id", array() );
+        $select->where("$siteAlias.url = ?", $siteUrl);
+        $select->order("$alias.id DESC");
         return $this->fetchObject($select);
     }
 

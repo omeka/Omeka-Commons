@@ -1,7 +1,10 @@
 <?php
 
+define('SITES_PLUGIN_DIR', dirname(__FILE__));
 
-class SitesPlugin extends Omeka_Plugin_Abstract
+
+
+class SitesPlugin extends Omeka_Plugin_AbstractPlugin
 {
 
     protected $_hooks = array(
@@ -9,7 +12,7 @@ class SitesPlugin extends Omeka_Plugin_Abstract
      //   'uninstall',
         'site_browse_sql',
         'public_theme_header',
-        'after_insert_user' // a little inappropriate since it isn't relevant to this plugin, but just a cheap shortcut since it shouldn't go in Groups
+        'after_insert_user' // a little inappropriate since it isn't relevant to this plugin, but just a cheap shortcut since it shouldn't go in Groups as a general use plugin feature
 
     );
     protected $_filters = array(
@@ -17,7 +20,20 @@ class SitesPlugin extends Omeka_Plugin_Abstract
 
     );
     protected $_options = null;
-
+    
+    public function setUp()
+    {
+        require_once(SITES_PLUGIN_DIR . '/models/SiteContext/Table/Collection.php');
+        require_once(SITES_PLUGIN_DIR . '/models/SiteContext/Table/Exhibit.php');
+        require_once(SITES_PLUGIN_DIR . '/models/SiteContext/Table/ExhibitSection.php');
+        require_once(SITES_PLUGIN_DIR . '/models/SiteContext/Table/ExhibitSectionPage.php');
+        
+    }
+    
+    /*
+     * For Commons, each new user gets a new site
+     */
+    
     public function hookAfterInsertUser($user)
     {
         $group = new Group();        
@@ -34,7 +50,7 @@ class SitesPlugin extends Omeka_Plugin_Abstract
 
     public function filterAdminNavigationMain($tabs)
     {
-        $tabs['Sites'] = uri('sites/index');
+        $tabs['Sites'] = array('label'=>'Sites', 'uri'=>url('sites/index') );
         return $tabs;
     }
 
@@ -45,6 +61,7 @@ class SitesPlugin extends Omeka_Plugin_Abstract
         $sql = "
         CREATE TABLE IF NOT EXISTS `$db->Site` (
           `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+          `site_owner_id` int(10) unsigned NULL,
           `owner_id` int(10) unsigned NOT NULL,
           `url` text NULL,
           `admin_email` text NULL,

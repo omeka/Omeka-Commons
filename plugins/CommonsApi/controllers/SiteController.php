@@ -1,6 +1,6 @@
 <?php
 
-class CommonsApi_SiteController extends Omeka_Controller_Action
+class CommonsApi_SiteController extends Omeka_Controller_AbstractActionController
 {
 
     public function applyAction()

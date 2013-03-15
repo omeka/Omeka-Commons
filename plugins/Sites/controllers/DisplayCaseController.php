@@ -1,9 +1,7 @@
 <?php
 
-class Sites_DisplayCaseController extends Omeka_Controller_Action
+class Sites_DisplayCaseController extends Omeka_Controller_AbstractActionController
 {
-
-    protected $_modelClass = 'Site';
 
     public function init()
     {
@@ -32,5 +30,4 @@ class Sites_DisplayCaseController extends Omeka_Controller_Action
         $this->view->SiteContext_Exhibits = $exhibits;
         $this->view->tags = $tags;
     }
-
 }

@@ -1,13 +1,11 @@
 <?php
 
 $bodyclass = 'page sites-browse';
+echo head(array('title' => $site->title , 'bodyclass' => $bodyclass)); 
 ?>
-
-<?php head(array('title' => $site->title , 'bodyclass' => $bodyclass)); ?>
 <div id="primary">
 
-<?php while(sites_loop_sites()) : ?>
-<?php $site = sites_get_current_site(); ?>
+<?php foreach(loop('site') as $site) : ?>
     <div class='sites-site'>
     <h2><?php echo sites_link_to_site($site); ?></h2>
     <?php echo sites_site_logo($site); ?>
@@ -30,6 +28,6 @@ $bodyclass = 'page sites-browse';
     <p><?php echo sites_link_to_original_site($site); ?>
 
     </div>
-<?php endwhile; ?>
+<?php endforeach; ?>
 </div>
-<?php foot(); ?>
+<?php echo foot(); ?>

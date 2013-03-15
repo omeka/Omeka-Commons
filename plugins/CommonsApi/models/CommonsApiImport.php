@@ -1,7 +1,7 @@
 <?php
 
 
-class CommonsApiImport extends Omeka_Record
+class CommonsApiImport extends Omeka_Record_AbstractRecord
 {
     public $id;
     public $site_id;

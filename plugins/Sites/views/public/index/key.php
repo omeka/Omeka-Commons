@@ -1,5 +1,5 @@
 <?php
-head();
+echo head();
 
 ?>
 <?php echo flash(); ?>
@@ -19,4 +19,4 @@ information about your site to help others discover your materials.
 
 <?php endif; ?>
 
-<?php foot(); ?>
+<?php echo foot(); ?>

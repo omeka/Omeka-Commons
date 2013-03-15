@@ -1,6 +1,6 @@
 <?php
 
-class Sites_IndexController extends Omeka_Controller_Action
+class Sites_IndexController extends Omeka_Controller_AbstractActionController
 {
 
     protected $_browseRecordsPerPage = 10;
@@ -14,7 +14,7 @@ class Sites_IndexController extends Omeka_Controller_Action
     public function approveAction()
     {
         $db = get_db();
-        $id = $this->getRequest()->getParam('id');
+        $id = $this->getParam('id');
         $site = $db->getTable('Site')->find($id);
         $site->added = Zend_Date::now()->toString('yyyy-MM-dd HH:mm:ss');
         $site->save();

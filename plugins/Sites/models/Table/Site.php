@@ -1,20 +1,14 @@
 <?php
 
-class SiteTable extends Omeka_Db_Table
+class Table_Site extends Omeka_Db_Table
 {
 
     public function applySearchFilters($select, $params)
     {
-        $columns = $this->getColumns();
-        foreach($columns as $column) {
-            if(array_key_exists($column, $params)) {
-                $select->where("sites.$column = ? ", $params[$column]);
-            }
-        }
+        parent::applySearchFilters($select, $params);
         if(isset($params['random'])) {
             $select = $this->orderSelectByRandom($select);
         }
-        
         return $select;
     }
 

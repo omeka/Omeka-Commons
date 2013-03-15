@@ -1,36 +1,25 @@
 <?php
-queue_js('sites');
-queue_css('sites');
+queue_js_file('sites');
+queue_css_file('sites');
 $head = array('bodyclass' => 'sites primary',
               'title' => html_escape('Sites'));
-head($head);
+echo head($head);
 
-function approve_link($site) {
-    if(empty($site->added)) {
-        return "<span class='approve' id='approve-" . $site->id . "'>Approve</span>";
-    }
-    return $site->added;
-}
 ?>
-<h1><?php echo $head['title']; ?></h1>
 
 <div id="primary">
     <?php echo flash(); ?>
-    <div id="browse-meta" class="group">
-        <div id="browse-meta-lists">
-            <ul id="items-sort" class="navigation">
-                <li><strong>Quick Filter</strong></li>
-            <?php
-                echo nav(array(
-                    'All' => uri('sites/index/browse'),
-                    'Needs Approval' => uri('sites/index/browse?unapproved=true')
-                ));
-            ?>
+    
+    <ul class="quick-filter-wrapper">
+        <li><a href="#" tabindex="0"><?php echo __('Quick Filter'); ?></a>
+        <ul class="dropdown">
+            <li><span class="quick-filter-heading"><?php echo __('Quick Filter') ?></span></li>
+             <li><a href="<?php echo url('sites/index/browse'); ?>">All</a></li>
+             <li><a href="<?php echo url('sites/index/browse?unapproved=true') ?>">Needs approval</a></li>       
+            
             </ul>
-        </div>
-    </div>
-
-
+        </li>
+    </ul>    
 
     <table>
         <thead>
@@ -48,8 +37,7 @@ function approve_link($site) {
 
         </thead>
         <tbody>
-        <?php while(sites_loop_sites()): ?>
-        <?php $site = sites_get_current_site(); ?>
+        <?php foreach(loop('sites') as $site): ?>
         <tr>
         <td><?php echo $site->title; ?></td>
         <td><?php echo $site->description; ?></td>
@@ -57,15 +45,20 @@ function approve_link($site) {
         <td><?php echo $site->admin_email; ?></td>
         <td><?php echo $site->author; ?></td>
         <td><?php echo $site->copyright_info; ?></td>
-        <td><?php echo $site->Owner->User->name; ?>
+        <td><?php echo $site->getOwner()->name; ?>
         <td><?php echo $site->last_import; ?></td>
-        <td><?php echo approve_link($site); ?></td>
-
+        <td>
+        <?php if(!$site->added): ?>
+            <span class='approve' id='approve-<?php echo $site->id; ?>'>Approve</span>
+        <?php else: ?>
+            <?php echo $site->added; ?>
+        <?php endif; ?>
+        </td>
         </tr>
-        <?php endwhile; ?>
+        <?php endforeach; ?>
 
         </tbody>
 
     </table>
 </div>
-<?php foot(); ?>
+<?php echo foot(); ?>

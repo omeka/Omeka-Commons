@@ -1,8 +1,9 @@
 <?php
 
-class Site extends Omeka_Record
+class Site extends Omeka_Record_AbstractRecord
 {
     public $id;
+    public $site_owner_id;
     public $owner_id;
     public $url;
     public $admin_email;
@@ -18,7 +19,12 @@ class Site extends Omeka_Record
     public $branding;
 
 
-    protected $_related = array('Owner'=>'getSiteOwner');
+    protected $_related = array('SiteOwner'=>'getSiteOwner');
+
+    protected function _initializeMixins()
+    {
+        $this->_mixins[] = new Mixin_Owner($this);
+    }    
     
     public function beforeSave()
     {
@@ -31,6 +37,6 @@ class Site extends Omeka_Record
     public function getSiteOwner()
     {
         $ownersArray = $this->getTable('SiteOwner')->findBy(array('site_id'=>$this->id));
-        return $ownersArray[0];                
+        return isset($ownersArray[0]) ? $ownersArray[0] : false;                
     }
 }

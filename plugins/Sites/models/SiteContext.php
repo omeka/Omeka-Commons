@@ -1,7 +1,7 @@
 <?php
 
 
-class SiteContext extends Omeka_Record {
+class SiteContext extends Omeka_Record_AbstractRecord {
 
     public $id;
     public $site_id;
@@ -9,6 +9,5 @@ class SiteContext extends Omeka_Record {
     public $title;
     public $description;
     public $url;
-
 
 }
