@@ -1,37 +1,33 @@
 <?php
 
 define('SITES_PLUGIN_DIR', dirname(__FILE__));
-
-
+require_once(SITES_PLUGIN_DIR . '/helpers/functions.php');
 
 class SitesPlugin extends Omeka_Plugin_AbstractPlugin
 {
-
     protected $_hooks = array(
         'install',
-     //   'uninstall',
+        'uninstall',
         'site_browse_sql',
         'public_theme_header',
         'after_insert_user' // a little inappropriate since it isn't relevant to this plugin, but just a cheap shortcut since it shouldn't go in Groups as a general use plugin feature
-
     );
+    
     protected $_filters = array(
         'admin_navigation_main'
-
     );
-    protected $_options = null;
     
     public function setUp()
     {
+        parent::setUp();
         require_once(SITES_PLUGIN_DIR . '/models/SiteContext/Table/Collection.php');
         require_once(SITES_PLUGIN_DIR . '/models/SiteContext/Table/Exhibit.php');
         require_once(SITES_PLUGIN_DIR . '/models/SiteContext/Table/ExhibitSection.php');
         require_once(SITES_PLUGIN_DIR . '/models/SiteContext/Table/ExhibitSectionPage.php');
-        
     }
     
     /*
-     * For Commons, each new user gets a new site
+     * For Commons, each new user gets a new gruop
      */
     
     public function hookAfterInsertUser($user)
@@ -234,7 +230,7 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
 
         record_relations_install_properties($commonsProps);
 
-        blocks_register_blocks(array('CommonsOriginalInfoBlock', 'CommonsSiteInfoBlock' ));
+        //blocks_register_blocks(array('CommonsOriginalInfoBlock', 'CommonsSiteInfoBlock' ));
     }
 
     public function hookUninstall()
@@ -253,7 +249,7 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
 
         $db->query($sql);
 
-        blocks_unregister_blocks(array('CommonsOriginalInfoBlock', 'CommonsSiteInfoBlock' ));
+        //blocks_unregister_blocks(array('CommonsOriginalInfoBlock', 'CommonsSiteInfoBlock' ));
     }
 
     public function hookDefineRoutes($router)

@@ -2,19 +2,18 @@
 
 class Table_Site extends Omeka_Db_Table
 {
-
     public function applySearchFilters($select, $params)
     {
-        parent::applySearchFilters($select, $params);
         if(isset($params['random'])) {
             $select = $this->orderSelectByRandom($select);
         }
+        parent::applySearchFilters($select, $params);
         return $select;
     }
 
     public function findByUrlKey($url, $key)
     {
-        $select = $this->getSelectForFindBy(array('url'=>$url, 'key'=>$key));
+        $select = $this->getSelectForFindBy(array('url'=>$url, 'api_key'=>$key));
         return $this->fetchObject($select);
     }
 
@@ -30,15 +29,6 @@ class Table_Site extends Omeka_Db_Table
         $select->join(array('site_items'=>$this->_db->SiteItem), 'site_items.item_id = items.id', array());
         $select->where("site_id = ? ", $siteId);
         return $itemTable->fetchObjects($select);
-    }
-
-    public function findTagsForSite($site)
-    {
-        if(is_numeric($site)) {
-            $siteId = $site;
-        } else {
-            $siteId = $site->id;
-        }
     }
 
     public function orderSelectByRandom($select)

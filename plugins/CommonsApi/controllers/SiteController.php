@@ -30,7 +30,7 @@ class CommonsApi_SiteController extends Omeka_Controller_AbstractActionControlle
             $site->$key = $value;
         }
         $salt = substr(md5(mt_rand()), 0, 16);
-        $site->key = sha1($salt . $site->url . microtime() );
+        $site->api_key = sha1($salt . $site->url . microtime() );
         $site->save();
         $response = array('status'=>'OK', 'message'=>'Check your email for info about the next steps');
         $this->_helper->json($response);

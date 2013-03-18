@@ -9,7 +9,7 @@ class Site extends Omeka_Record_AbstractRecord
     public $admin_email;
     public $title;
     public $description;
-    public $key;
+    public $api_key;
     public $import_url;
     public $added;
     public $last_import;
@@ -39,4 +39,10 @@ class Site extends Omeka_Record_AbstractRecord
         $ownersArray = $this->getTable('SiteOwner')->findBy(array('site_id'=>$this->id));
         return isset($ownersArray[0]) ? $ownersArray[0] : false;                
     }
+    
+    public function getRecordUrl($action) {
+        $url = url("/sites/display-case/$action/id/" . $this->id);
+        return $url;
+    }
+    
 }

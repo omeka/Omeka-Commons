@@ -1,27 +1,20 @@
 <?php
 
 $bodyclass = 'page sites-browse';
-echo head(array('title' => $site->title , 'bodyclass' => $bodyclass)); 
+echo head(array('title' => __('Browse sites') , 'bodyclass' => $bodyclass)); 
 ?>
 <div id="primary">
 
 <?php foreach(loop('site') as $site) : ?>
     <div class='sites-site'>
-    <h2><?php echo sites_link_to_site($site); ?></h2>
+    <h2><?php echo  $site->title; ?></h2>
     <?php echo sites_site_logo($site); ?>
-    <?php
-        $items = sites_random_site_item($site);
-        $item = $items[0];
-    ?>
     <div class='sites-sample'>
-        <?php if(!empty($items)): ?>
-
+        <?php if($random_item = sites_random_site_item($site)): ?>
                 <p>Example Item:</p>
-
-                <h3><?php echo link_to_item(null, array(), 'show',  $item); ?></h3>
-                <?php echo item_square_thumbnail(array(), 0, $item); ?>
-
-                <p><?php echo sites_link_to_site($site, 'Explore in the Commons'); ?></p>
+                <h3><?php echo link_to_item(null, array(), 'show',  $random_item); ?></h3>
+                <?php echo item_image('square_thumbnail', array(), 0, $random_item); ?>
+                <p><?php echo link_to($site, 'show', 'Explore in the Commons'); ?></p>
         <?php endif; ?>
     </div>
     <p><?php echo $site->description; ?></p>

@@ -5,7 +5,7 @@ require_once PLUGIN_DIR . '/RecordRelations/models/RelatableRecord.php';
 class CommonsApiPlugin extends Omeka_Plugin_AbstractPlugin
 {
 
-    protected $_hooks = array('install', 'uninstall');
+    protected $_hooks = array('install', 'uninstall', 'define_acl');
 
     public function hookInstall()
     {
@@ -33,5 +33,13 @@ class CommonsApiPlugin extends Omeka_Plugin_AbstractPlugin
     }
 
 
+    public function hookDefineAcl($args)
+    {
+        require_once(COMMONSAPI_PLUGIN_DIR . '/CommonsApiAclAssertion.php');
+        $acl = $args['acl'];
+        $acl->addResource('CommonsApi_Import');
+        $acl->allow(null, 'CommonsApi_Import', 'index', new CommonsApiAclAssertion);
+                
+    }
 
 }

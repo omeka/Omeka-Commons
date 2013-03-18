@@ -17,7 +17,7 @@ echo head(array('title' => $site->title , 'bodyclass' => $bodyclass));
     <?php echo $site->description; ?>
     <h3>Collections</h3>
     <ul id='sites-context'>
-    <?php foreach(loop('SiteContext_Collection') as $collection) : ?>
+    <?php foreach(loop('site_context_collection') as $collection) : ?>
         <li>
         <?php echo sites_link_to_original_context(); ?>
         </li>
@@ -26,7 +26,7 @@ echo head(array('title' => $site->title , 'bodyclass' => $bodyclass));
     <h3>Exhibits</h3>
     <ul id='sites-context'>
 
-    <?php foreach(loop('SiteContext_Exhibit') as $exhibit ) : ?>
+    <?php foreach(loop('site_context_exhibit') as $exhibit ) : ?>
         <li>
         <?php echo sites_link_to_original_context(); ?>
         </li>
@@ -41,15 +41,14 @@ echo head(array('title' => $site->title , 'bodyclass' => $bodyclass));
     <h2>Recently added items</h2>
     <ul class='sites-items'>
 
-    <?php set_items_for_loop($items); ?>
     <?php foreach(loop('item') as $item): ?>
     <li>
-    <?php echo link_to_item(); ?>
-    <?php if(item_has_thumbnail()): ?>
-    <div class="sites-item-img">
-        <?php echo link_to_item(item_square_thumbnail()); ?>
-    </div>
-    <?php endif; ?>
+        <?php echo link_to_item(); ?>
+        <?php if (metadata('item', 'has thumbnail')): ?>
+        <div class="sites-item-img">
+            <?php echo link_to_item(item_image('square_thumbnail')); ?>
+        </div>
+        <?php endif; ?>
     </li>
 
     <?php endforeach; ?>

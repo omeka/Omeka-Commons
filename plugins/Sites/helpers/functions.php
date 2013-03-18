@@ -8,14 +8,12 @@
 
 function sites_link_to_site_for_item($item = null)
 {
-
     $db = get_db();
     if(is_null($item)) {
-        $item = get_current_item();
+        $item = get_current_record('item');
     }
-
     $site = $db->getTable('SiteItem')->findSiteForItem($item->id);
-    return sites_link_to_site($site);
+    return "<a href='{$site->url}'>{$site->title}</a>";
 }
 
 /**
@@ -24,25 +22,10 @@ function sites_link_to_site_for_item($item = null)
  * @return Site
  */
 
-function sites_random_site() {
-
+function sites_random_site() 
+{
     $sites = get_db()->getTable('Site')->findBy(array('random'=>true));
     return $sites[0];
-}
-
-/**
- * get a link to a site display case in the commons
- *
- * @return string a link to the site display case in the commons
- */
-
-function sites_link_to_site($site = null, $text = null)
-{
-    if(!$text) {
-        $text = $site->title;
-    }
-    $url = url('/sites/display-case/show/id/' . $site->id);
-    return "<a href='$url'>$text</a>";
 }
 
 /**
@@ -56,10 +39,8 @@ function sites_link_to_original_site($site, $text = null)
     if(!$text) {
         $text = "Explore the full site";
     }
-
     return "<a href='{$site->url}'>$text</a>";
 }
-
 
 /**
  * get a random item from the site
@@ -70,11 +51,11 @@ function sites_link_to_original_site($site, $text = null)
 function sites_random_site_item($site)
 {
     $params = array(
-        //'hasImage' => true,
         'random' => true,
         'limit' => 1
     );
-    return get_db()->getTable('Site')->findItemsForSite($site, $params);
+    $items = get_db()->getTable('Site')->findItemsForSite($site, $params);
+    return isset($items[0]) ? $items[0] : false;
 }
 
 /**
@@ -90,18 +71,6 @@ function sites_site_for_item($item)
 }
 
 /**
- * get the customized css for a site
- * experimental
- * @return string the customized css
- */
-
-
-function sites_site_css($site)
-{
-    return $site->css;
-}
-
-/**
  * get the site's logo from its branding info
  *
  * @return string the <img> to display
@@ -109,7 +78,10 @@ function sites_site_css($site)
 
 function sites_site_logo($site)
 {
-    return "<img id='sites-logo' src='" . $site->branding['logo'] . "'/>";
+    if(isset($site->branding['logo'])) {
+        return "<img id='sites-logo' src='" . $site->branding['logo'] . "'/>";
+    }
+    return '';
 }
 
 /**
@@ -120,6 +92,9 @@ function sites_site_logo($site)
 
 function sites_site_banner($site)
 {
-    return "<img id='sites-banner' src='" . $site->branding['banner'] . "'/>";
+    if(isset($site->branding['banner'])) {
+        return "<img id='sites-banner' src='" . $site->branding['banner'] . "'/>";
+    }
+    return '';
 }
 

@@ -19,12 +19,8 @@ class CommonsApi_Importer
         $this->site['items'] = array();
         $this->site['collections'] = array();
         $this->db = get_db();
-        Omeka_Context::getInstance()->setAcl(null);
 
-        if($this->validate($data)) {
-            $this->data = $data;
-        }
-
+        $this->data = $data;
         if($this->setSite()) {
             $this->processSite();
         }
@@ -352,15 +348,6 @@ class CommonsApi_Importer
         return $returnArray;
     }
 
-    public function validate($data)
-    {
-        if(!isset($data['key']) || !isset($data['site_url'])) {
-            $this->hasErrors = true;
-            return false;
-        }
-        return true;
-    }
-
     public function setSite()
     {
         $sites = get_db()->getTable('Site')->findBy(array('url'=> $this->data['site_url']), 1);
@@ -383,11 +370,11 @@ class CommonsApi_Importer
         }
 
         //check that the keys match!
-        if($this->data['key'] != $site->key) {
+        if($this->data['api_key'] != $site->api_key) {
             $this->status['status'] = 'error';
             $this->status['messages'] = 'Invalid key';
             $this->hasErrors = true;
-            _log("Site " . $this->data['site_url'] . " has a bad key: " . $this->data['key']);
+            _log("Site " . $this->data['site_url'] . " has a bad key: " . $this->data['api_key']);
             return false;
         }
 
