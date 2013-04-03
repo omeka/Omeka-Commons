@@ -59,18 +59,6 @@ function sites_random_site_item($site)
 }
 
 /**
- * get the site from which an item came
- *
- * @return Site
- */
-
-function sites_site_for_item($item)
-{
-    $db = get_db();
-    return $db->getTable('SiteItem')->findSiteForItem($item->id);
-}
-
-/**
  * get the site's logo from its branding info
  *
  * @return string the <img> to display

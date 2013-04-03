@@ -14,8 +14,6 @@ var Sites = {
 	}
 };
 
-
-
 jQuery(document).ready(function() {
 	jQuery('.approve').click(Sites.approve);	
 }); 

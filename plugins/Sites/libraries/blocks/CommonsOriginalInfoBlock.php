@@ -95,8 +95,6 @@ class CommonsOriginalInfoBlock extends Blocks_Block_Abstract
             );
 
         return $db->getTable('RecordRelationsRelation')->findObjectRecordsByParams($relParams);
-
-
     }
 
 }
