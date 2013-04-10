@@ -3,7 +3,7 @@
 class Site extends Omeka_Record_AbstractRecord
 {
     public $id;
-    public $site_owner_id;
+    public $site_family_id;
     public $owner_id;
     public $url;
     public $admin_email;
@@ -15,6 +15,7 @@ class Site extends Omeka_Record_AbstractRecord
     public $last_import;
     public $copyright_info;
     public $author_info;
+    public $version;
     public $css;
     public $branding;
 
@@ -34,10 +35,13 @@ class Site extends Omeka_Record_AbstractRecord
         $this->branding = serialize($this->branding);
     }
 
-    public function getSiteOwner()
+    public function getSiteFamily()
     {
-        $ownersArray = $this->getTable('SiteOwner')->findBy(array('site_id'=>$this->id));
-        return isset($ownersArray[0]) ? $ownersArray[0] : false;                
+        if($this->site_family_id) {
+            $familiesArray = $this->getTable('SiteFamily')->findBy(array('site_id'=>$this->site_family_id));
+            return isset($familiesArray[0]) ? $familiesArray[0] : false;            
+        }
+        return false;
     }
     
     public function getRecordUrl($action) {

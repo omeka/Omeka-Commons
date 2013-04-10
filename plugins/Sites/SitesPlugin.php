@@ -2,12 +2,14 @@
 
 define('SITES_PLUGIN_DIR', dirname(__FILE__));
 require_once(SITES_PLUGIN_DIR . '/helpers/functions.php');
+require_once(SITES_PLUGIN_DIR . '/helpers/ContextFunctions.php');
 
 class SitesPlugin extends Omeka_Plugin_AbstractPlugin
 {
     protected $_hooks = array(
         'install',
         'uninstall',
+        'upgrade',
         'site_browse_sql',
         'public_theme_header',
         'public_items_show',
@@ -67,7 +69,7 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
         $sql = "
         CREATE TABLE IF NOT EXISTS `$db->Site` (
           `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-          `site_owner_id` int(10) unsigned NULL,
+          `site_family_id` int(10) unsigned NULL,
           `owner_id` int(10) unsigned NOT NULL,
           `url` text NULL,
           `admin_email` text NULL,
@@ -172,6 +174,17 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
 
         $db->query($sql);
 
+        $sql = "
+        CREATE TABLE IF NOT EXISTS `$db->SiteFamily` (
+          `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+          `name` text NULL,
+          `description` text NULL,
+          PRIMARY KEY (`id`),
+        ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;        
+        ";
+        
+        $db->query($sql);
+        
         $prop = get_db()->getTable('RecordRelationsProperty')->findByVocabAndPropertyName(SIOC, 'has_container');
         if(empty($prop)) {
             $propData = array(
@@ -254,12 +267,39 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
                 `$db->SiteContextExhibitPage`,
                 `$db->SiteContextCollection`,
                 `$db->SiteItem`,
+                `$db->SiteFamily`,
                 `$db->SiteToken` ;
         ";
 
         $db->query($sql);
 
         //blocks_unregister_blocks(array('CommonsOriginalInfoBlock', 'CommonsSiteInfoBlock' ));
+    }
+    
+    public function hookUpgrade($args)
+    {
+        $old = $args['old_version'];
+        $new = $args['new_version'];
+        $db = get_db();
+        if($new == '1.1') {
+            $sql = "
+            CREATE TABLE IF NOT EXISTS `$db->SiteFamily` (
+            `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+            `name` text NULL,
+            `description` text NULL,
+            PRIMARY KEY (`id`)
+            ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+            ";
+            
+            $db->query($sql);       
+
+            $sql = "
+            ALTER TABLE `omeka_sites` CHANGE `site_owner_id` `site_family_id` INT( 10 ) UNSIGNED NULL DEFAULT NULL,
+            ALTER TABLE `omeka_sites` ADD `version` TINYTEXT NOT NULL AFTER `author_info`  
+            ";
+            
+            $db->query($sql);
+        }
     }
 
     public function hookDefineRoutes($router)
@@ -307,6 +347,9 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
         
         $site = $db->getTable('SiteItem')->findSiteForItem($item->id);
         $siteItem = get_db()->getTable('SiteItem')->findByItemId($item->id);
+        if(!$siteItem) {
+            return;
+        }
         $has_container = $db->getTable('RecordRelationsProperty')->findByVocabAndPropertyName(SIOC, 'has_container');
         $collections = $this->_findSiteContexts($has_container, 'SiteContext_Collection', $siteItem->id);
         $exhibits = $this->_findSiteContexts($has_container, 'SiteContext_Exhibit', $siteItem->id);
