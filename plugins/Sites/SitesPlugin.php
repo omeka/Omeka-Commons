@@ -382,7 +382,10 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
     {
         $item = $args['item'];
         $db = get_db();
-        $site = $db->getTable('SiteItem')->findSiteForItem($item->id);        
+        $site = $db->getTable('SiteItem')->findSiteForItem($item->id);    
+        if(!$site) {
+            return;
+        }    
         $html = "<div id='site-info'>";
         $html .= "<h2>Explore in Omeka Commons</h2>";
         $html .= "<p>From " . link_to($site, 'show', $site->title) . "</p>";

@@ -8,7 +8,7 @@ echo head($head);
 ?>
 
 <div id="primary">
-    <?php echo flash(); ?>
+    <div class="pagination"><?php echo pagination_links(); ?></div>
     
     <ul class="quick-filter-wrapper">
         <li><a href="#" tabindex="0"><?php echo __('Quick Filter'); ?></a>
@@ -24,13 +24,10 @@ echo head($head);
     <table>
         <thead>
         <tr>
-        <th>Title</th>
+        <th>Contributing site</th>
         <th>Description</th>
-        <th>URL</th>
-        <th>Admin Email</th>
         <th>Author</th>
         <th>Site Copyright</th>
-        <th>Owner</th>
         <th>Last Import</th>
         <th>Approved</th>
         </tr>
@@ -39,13 +36,15 @@ echo head($head);
         <tbody>
         <?php foreach(loop('sites') as $site): ?>
         <tr>
-        <td><?php echo $site->title; ?></td>
+        <td>
+            <span class='title'><a href='<?php echo $site->url; ?>'><?php echo $site->title; ?></a></span>
+            <ul class='action-links group'>
+                <li class='details-link'><a href='mailto: <?php echo $site->admin_email; ?>'>Email admin</a></li>
+            </ul>
+        </td>
         <td><?php echo $site->description; ?></td>
-        <td><?php echo $site->url; ?></td>
-        <td><?php echo $site->admin_email; ?></td>
         <td><?php echo $site->author; ?></td>
         <td><?php echo $site->copyright_info; ?></td>
-        <td><?php echo $site->getOwner()->name; ?>
         <td><?php echo $site->last_import; ?></td>
         <td>
         <?php if(!$site->added): ?>
@@ -60,5 +59,6 @@ echo head($head);
         </tbody>
 
     </table>
+    <div class="pagination"><?php echo pagination_links(); ?></div>
 </div>
 <?php echo foot(); ?>
