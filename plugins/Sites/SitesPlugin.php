@@ -13,7 +13,9 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
         'site_browse_sql',
         'public_theme_header',
         'public_items_show',
-        'after_insert_user' // a little inappropriate since it isn't relevant to this plugin, but just a cheap shortcut since it shouldn't go in Groups as a general use plugin feature
+        'admin_items_show_sidebar',
+        'after_insert_user', // a little inappropriate since it isn't relevant to this plugin, but just a cheap shortcut since it shouldn't go in Groups as a general use plugin feature
+        'embed_codes_browse_each'
     );
     
     protected $_filters = array(
@@ -52,8 +54,28 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
         $html = '';
         $html .= $this->_siteContextsHtml($args);
         $html .= $this->_siteInfoHtml($args);
-        
         echo $html;
+    }
+    
+    public function hookAdminItemsShowSidebar($args)
+    {
+        $html = '<div class="panel">';
+        $html .= $this->_siteContextsHtml($args, array('h-level'=>4));
+        $html .= $this->_siteInfoHtml($args, array('h-level'=>4));
+        $html .= '</div>';
+        echo $html;        
+    }
+    
+    public function hookEmbedCodesBrowseEach($args)
+    {
+        $item = $args['item'];
+        $site = $this->_db->getTable('SiteItem')->findSiteForItem($item);
+        if($site) {
+            $html = "<li>";
+            $html .= "Site: " . $site->title;
+            $html .= "</li>";
+            echo $html;            
+        }
     }
     
     public function filterAdminNavigationMain($tabs)
@@ -340,8 +362,15 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
         return $db->getTable('RecordRelationsRelation')->findObjectRecordsByParams($relParams);
     }    
 
-    private function _siteContextsHtml($args)
+    private function _siteContextsHtml($args, $options=array())
     {
+        if(isset($options['h-level'])) {
+            $hlevel = $options['h-level'];
+        } else {
+            $hlevel = 2;
+        }
+                
+        
         $item = $args['item'];
         $db = get_db();
         
@@ -356,18 +385,19 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
         $exhibitSections = $this->_findSiteContexts($has_container, 'SiteContext_ExhibitSection', $siteItem->id);
         $exhibitSectionPages = $this->_findSiteContexts($has_container, 'SiteContext_ExhibitSectionPage', $siteItem->id);
         $html = "<div id='site-contexts'>";
-        $html .= "<h2>Original Context</h2>";
+        $html .= "<h$hlevel>Original Context</h$hlevel>";
         $html .= "<p><a href='{$site->url}'>". $site->title . "</a></p>";
         $html .= "<p>". $site->description . "</p>";
+        $nextHlevel = $hlevel +1;
         if(!empty($collections)) {
-            $html .= "<h3>Collection(s)</h3>";
+            $html .= "<h$nextHlevel>Collection(s)</h$nextHlevel>";
             foreach($collections as $collection) {
                 $html .= "<p><a href='" . $collection->url . "'>" . $collection->title . "</a>: ";
                 $html .= snippet($collection->description, 0, 100) . "</p>";
             }
         }
         if(!empty($exhibits)) {
-            $html .= "<h3>Exhibit(s)</h3>";
+            $html .= "<h$nextHlevel>Exhibit(s)</h$nextHlevel>";
             foreach($exhibits as $exhibit) {
                 $html .= "<p><a href='" . $exhibit->url . "'>" . $exhibit->title . "</a>: ";
                 $html .= metadata($exhibit, array('Dublin Core', 'Description'), array('snippet'=>100)) . "</p>";
@@ -378,8 +408,14 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
         return $html;        
     }
     
-    private function _siteInfoHtml($args)
+    private function _siteInfoHtml($args, $options=array())
     {
+        if(isset($options['h-level'])) {
+            $hlevel = $options['h-level'];
+        } else {
+            $hlevel = 2;
+        }
+        
         $item = $args['item'];
         $db = get_db();
         $site = $db->getTable('SiteItem')->findSiteForItem($item->id);    
@@ -387,7 +423,7 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
             return;
         }    
         $html = "<div id='site-info'>";
-        $html .= "<h2>Explore in Omeka Commons</h2>";
+        $html .= "<h$hlevel>Explore in Omeka Commons</h$hlevel>";
         $html .= "<p>From " . link_to($site, 'show', $site->title) . "</p>";
         $html .= sites_site_logo($site);
         $html .= "</div>";
