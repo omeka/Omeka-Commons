@@ -4,7 +4,7 @@ var Sites = {
 	approve: function() {
 		id = jQuery(this).attr('id').substring(8);
 		Sites.element = this;
-		jQuery.post("approve/", {'id': id}, Sites.approveResponseHandler);
+		jQuery.post("approve/" + id, {}, Sites.approveResponseHandler);
 	
 	},
 	

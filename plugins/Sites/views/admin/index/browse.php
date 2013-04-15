@@ -14,8 +14,9 @@ echo head($head);
         <li><a href="#" tabindex="0"><?php echo __('Quick Filter'); ?></a>
         <ul class="dropdown">
             <li><span class="quick-filter-heading"><?php echo __('Quick Filter') ?></span></li>
-             <li><a href="<?php echo url('sites/index/browse'); ?>">All</a></li>
-             <li><a href="<?php echo url('sites/index/browse?unapproved=true') ?>">Needs approval</a></li>       
+             <li><a href="<?php echo url('sites'); ?>">All</a></li>
+             <li><a href="<?php echo url('sites?approved=true') ?>">Approved</a></li>
+             <li><a href="<?php echo url('sites?unapproved=true') ?>">Needs approval</a></li>       
             
             </ul>
         </li>

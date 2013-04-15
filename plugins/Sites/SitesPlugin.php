@@ -11,6 +11,7 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
         'uninstall',
         'upgrade',
         'site_browse_sql',
+        'define_routes',
         'public_theme_header',
         'public_items_show',
         'admin_items_show_sidebar',
@@ -35,8 +36,9 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
      * For Commons, each new user gets a new gruop
      */
     
-    public function hookAfterInsertUser($user)
+    public function hookAfterInsertUser($args)
     {
+        $user = $args['record'];
         $group = new Group();        
         $group->visibility = 'closed';
         $group->title = $user->name . "'s Group";
@@ -80,10 +82,10 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
         }
     }
     
-    public function filterAdminNavigationMain($tabs)
+    public function filterAdminNavigationMain($navArray)
     {
-        $tabs['Sites'] = array('label'=>'Sites', 'uri'=>url('sites/index') );
-        return $tabs;
+        $navArray['Sites'] = array('label'=>'Sites', 'uri'=>url('sites/index') );
+        return $navArray;
     }
 
     public function hookInstall()
@@ -326,8 +328,9 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
         }
     }
 
-    public function hookDefineRoutes($router)
+    public function hookDefineRoutes($args)
     {
+        $router = $args['router'];
         $router->addRoute(
             'sites-site-route',
             new Zend_Controller_Router_Route(
@@ -341,8 +344,10 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
         );
     }
 
-    public function hookSiteBrowseSql($select, $params)
+    public function hookSiteBrowseSql($args)
     {
+        $select = $args['select'];
+        $params = $args['params'];
         if(isset($_GET['unapproved']) && $_GET['unapproved'] == true) {
             $select->where('added IS NULL');
         }

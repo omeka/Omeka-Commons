@@ -7,6 +7,12 @@ class Table_Site extends Omeka_Db_Table
         if(isset($params['random'])) {
             $select = $this->orderSelectByRandom($select);
         }
+        if(isset($params['unapproved'])) {
+            $select->where("`added` IS NULL");
+        }
+        if(isset($params['approved'])) {
+            $select->where("`added` IS NOT NULL");
+        }        
         parent::applySearchFilters($select, $params);
         return $select;
     }
