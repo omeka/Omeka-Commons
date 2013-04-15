@@ -59,11 +59,13 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
     
     public function hookAdminItemsShowSidebar($args)
     {
-        $html = '<div class="panel">';
-        $html .= $this->_siteContextsHtml($args, array('h-level'=>4));
-        $html .= $this->_siteInfoHtml($args, array('h-level'=>4));
-        $html .= '</div>';
-        echo $html;        
+        $contentHtml = $this->_siteContextsHtml($args, array('h-level'=>4));
+        $contentHtml .= $this->_siteInfoHtml($args, array('h-level'=>4));
+        if(!empty($contentHtml)) {
+            $html = '<div class="panel">';
+            $html .= '</div>';
+            echo $html;            
+        }
     }
     
     public function hookEmbedCodesBrowseEach($args)
