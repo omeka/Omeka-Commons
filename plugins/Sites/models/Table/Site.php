@@ -16,6 +16,12 @@ class Table_Site extends Omeka_Db_Table
         parent::applySearchFilters($select, $params);
         return $select;
     }
+    
+    public function findByKey($key)
+    {
+        $select = $this->getSelectForFindBy(array('api_key'=>$key));
+        return $this->fetchObject($select);        
+    }
 
     public function findByUrlKey($url, $key)
     {

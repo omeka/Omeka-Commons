@@ -14,8 +14,8 @@ echo head(array('title' => $site->title , 'bodyclass' => $bodyclass));
 </div>
     <div id="sites-overview">
     <h2>Overview</h2>
-    <?php if($family): ?>
-    <p><?php echo metadata($site, 'title'); ?> is part of <?php echo link_to($family, 'show', metadata($family, 'name'));?></p>
+    <?php if(isset($aggregation)): ?>
+    <p><?php echo metadata($site, 'title'); ?> is part of <?php echo link_to($aggregation, 'show', metadata($aggregation, 'name'));?></p>
     <?php endif; ?>
     <?php echo $site->description; ?>
     <h3>Collections</h3>

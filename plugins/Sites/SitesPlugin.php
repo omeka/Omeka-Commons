@@ -11,7 +11,7 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
         'uninstall',
         'upgrade',
         'site_browse_sql',
-        'define_routes',
+        //'define_routes',
         'public_theme_header',
         'public_items_show',
         'admin_items_show_sidebar',
@@ -95,22 +95,27 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
         $sql = "
         CREATE TABLE IF NOT EXISTS `$db->Site` (
           `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-          `site_family_id` int(10) unsigned NULL,
-          `owner_id` int(10) unsigned NOT NULL,
+          `site_aggregation_id` int(10) unsigned NULL,
+          `owner_id` int(10) unsigned NULL,
           `url` text NULL,
-          `admin_email` text NULL,
+          `super_email` text NOT NULL,
+          `admin_email` text NOT NULL,
+          `admin_name` text NOT NULL,
+          `content_summary` text NOT NULL,
+          `affiliation` text NOT NULL,
+          `join_reason` text NOT NULL,
           `title` text NULL,
           `description` text NULL,
           `key` text NULL,
-          `import_url` text NULL,
           `last_import` timestamp NULL DEFAULT NULL,
-          `added` timestamp NULL DEFAULT NULL,
+          `date_approved` timestamp NULL DEFAULT NULL,
+          `date_applied` timestamp NULL DEFAULT NULL,
           `copyright_info` text,
           `author_info` text NULL,
-          `css` text NULL,
-          `branding` text NULL,
+          `commons_settings` text NULL,
+          `omeka_version` text NOT NULL
           PRIMARY KEY (`id`)
-        ) ENGINE=MyISAM CHARACTER SET utf8 COLLATE utf8_unicode_ci
+        ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
         ";
         $db->query($sql);
@@ -201,11 +206,11 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
         $db->query($sql);
 
         $sql = "
-        CREATE TABLE IF NOT EXISTS `$db->SiteFamily` (
+        CREATE TABLE IF NOT EXISTS `$db->SiteAggregation` (
           `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
           `name` text NULL,
           `description` text NULL,
-          PRIMARY KEY (`id`),
+          PRIMARY KEY (`id`)
         ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;        
         ";
         

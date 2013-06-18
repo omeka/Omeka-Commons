@@ -9,14 +9,13 @@ class Sites_IndexController extends Omeka_Controller_AbstractActionController
     {
         $this->_helper->db->setDefaultModelName('Site');
     }
-
     
     public function approveAction()
     {
         $db = get_db();
         $id = $this->getParam('id');
         $site = $db->getTable('Site')->find($id);
-        $site->added = Zend_Date::now()->toString('yyyy-MM-dd HH:mm:ss');
+        $site->date_approved = Zend_Date::now()->toString('yyyy-MM-dd HH:mm:ss');
         $site->save();
         try {
             $this->sendApprovalEmail($site);
@@ -24,34 +23,12 @@ class Sites_IndexController extends Omeka_Controller_AbstractActionController
 
         }
 
-        $responseArray = array('id' => $id, 'added'=>$site->added);
+        $responseArray = array('id' => $id, 'date_approved'=>$site->date_approved);
         $this->_helper->json(json_encode($responseArray));
-    }
-
-    public function keyAction()
-    {
-        $token = $this->getRequest()->getParam('token');
-        if(!$token) {
-            exit;
-        }
-        $siteToken = $this->getDb()->getTable('SiteToken')->findByToken($token);
-
-        if(!$siteToken) {
-            $this->flashError("Token doesn't match our records");
-            $this->view->error = true;
-        } else if (time() > $siteToken->expiration) {
-            $this->flashError("Token has expired");
-            $this->view->error = true;
-        } else {
-            $site = $this->getDb()->getTable('Site')->find($siteToken->site_id);
-            $this->view->assign('site', $site);
-        }
     }
 
     private function sendApprovalEmail($site)
     {
-
-        $tokenUrl = $this->createTokenUrl($site);
         $to = $site->admin_email;
         $from = get_option('administrator_email');
         $subject = "Omeka Commons participation approved!";
@@ -77,20 +54,5 @@ class Sites_IndexController extends Omeka_Controller_AbstractActionController
         $mail->setSubject($subject);
         $mail->addHeader('X-Mailer', 'PHP/' . phpversion());
         $mail->send();
-
-    }
-
-    private function createTokenUrl($site)
-    {
-        $token = sha1("tOkenS@1t" . microtime());
-        $tokenUrl = WEB_ROOT . '/sites/index/key' . "?token=" . $token;
-
-        $siteToken = new SiteToken();
-
-        $siteToken->site_id = $site->id;
-        $siteToken->token = $token;
-        $siteToken->save();
-        return $tokenUrl;
-
     }
 }

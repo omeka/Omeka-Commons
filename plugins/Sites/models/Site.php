@@ -3,21 +3,25 @@
 class Site extends Omeka_Record_AbstractRecord
 {
     public $id;
-    public $site_family_id;
+    public $site_aggregation_id;
     public $owner_id;
     public $url;
+    public $super_email;
     public $admin_email;
+    public $admin_name;
+    public $content_summary;
+    public $affiliation;
+    public $join_reason;
     public $title;
     public $description;
-    public $api_key;
-    public $import_url;
-    public $added;
+    public $key;
+    public $date_applied;
+    public $date_approved;
     public $last_import;
     public $copyright_info;
     public $author_info;
-    public $version;
-    public $css;
-    public $branding;
+    public $omeka_version;
+    public $commons_settings;
 
 
     protected $_related = array('SiteOwner'=>'getSiteOwner');
@@ -29,17 +33,16 @@ class Site extends Omeka_Record_AbstractRecord
     
     public function beforeSave()
     {
-        if(!is_array($this->branding)) {
-            $this->branding = array();
+        if(!is_array($this->commons_settings)) {
+            $this->commons_settings = array();
         }
-        $this->branding = serialize($this->branding);
+        $this->commons_settings = serialize($this->commons_settings);
     }
 
-    public function getSiteFamily()
+    public function getSiteAggregation()
     {
-        if($this->site_family_id) {
-            $familiesArray = $this->getTable('SiteFamily')->findBy(array('site_id'=>$this->site_family_id));
-            return isset($familiesArray[0]) ? $familiesArray[0] : false;            
+        if($this->site_aggregation_id) {
+            return  $this->getTable('SiteAggregation')->find($this->site_aggregation_id);
         }
         return false;
     }

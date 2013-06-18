@@ -16,7 +16,7 @@ class Sites_DisplayCaseController extends Omeka_Controller_AbstractActionControl
         $items = $this->_helper->db->getTable('SiteItem')->findItemsBy(array('site_id' => $id), 3);
         $collections = $this->_helper->db->getTable('SiteContext_Collection')->findBy(array('site_id'=>$id));
         $exhibits = $this->_helper->db->getTable('SiteContext_Exhibit')->findBy(array('site_id'=>$id));
-        $family = $this->_helper->db->getTable('SiteFamily')->findBy(array('site_family_id'=>$id));
+        $aggregation = $this->_helper->db->getTable('SiteAggregation')->find($site->site_aggregation_id);
         
         
         $params = array(
@@ -31,6 +31,6 @@ class Sites_DisplayCaseController extends Omeka_Controller_AbstractActionControl
         $this->view->site_context_collections = $collections;
         $this->view->site_context_exhibits = $exhibits;
         $this->view->tags = $tags;
-        $this->view->family = empty($family) ? false : $family[0];  
+        $this->view->aggregation = empty($aggregation) ? false : $aggregation[0];  
     }
 }
