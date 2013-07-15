@@ -11,47 +11,66 @@ echo head($head);
     <div class="pagination"><?php echo pagination_links(); ?></div>
     
     <ul class="quick-filter-wrapper">
-        <li><a href="#" tabindex="0"><?php echo __('Quick Filter'); ?></a>
+        <li><a href="#" tabindex="0">Filter Approved</a>
         <ul class="dropdown">
-            <li><span class="quick-filter-heading"><?php echo __('Quick Filter') ?></span></li>
+            <li><span class="quick-filter-heading">Filter Approved</span></li>
              <li><a href="<?php echo url('sites'); ?>">All</a></li>
              <li><a href="<?php echo url('sites?approved=true') ?>">Approved</a></li>
-             <li><a href="<?php echo url('sites?unapproved=true') ?>">Needs approval</a></li>       
-            
+             <li><a href="<?php echo url('sites?approved=false') ?>">Needs approval</a></li>       
             </ul>
         </li>
     </ul>    
 
+<div id='sites-search' style='clear:both'>
+    
+<form method="get">
+Search by:
+<label for='title'>Title</label><input size='10' type='text' name='title'/>
+<label for='affiliation'>Affiliation</label><input size='10' type='text' name='affiliation'/>
+<label for='admin_name'>Admin Name</label><input size='10' type='text' name='admin_name'/>
+<button>Submit</button>
+</form>
+</div>
     <table>
         <thead>
         <tr>
-        <th>Contributing site</th>
-        <th>Description</th>
-        <th>Author</th>
-        <th>Site Copyright</th>
-        <th>Last Import</th>
-        <th>Approved</th>
+        <th class="batch-edit-heading">Approve?</th>
+        <?php
+        $browseHeadings[__('Site')] = 'title';
+        $browseHeadings[__('Affiliation')] = 'affiliation';
+        $browseHeadings[__('Admin Name')] = 'admin_name';
+        $browseHeadings[__('Last Import')] = 'last_import';
+        $browseHeadings[__('Approved')] = 'date_approved';
+        echo browse_sort_links($browseHeadings, array('link_tag' => 'th scope="col"', 'list_tag' => '')); 
+        ?>        
+
         </tr>
 
         </thead>
         <tbody>
         <?php foreach(loop('sites') as $site): ?>
         <tr>
+        <td class="batch-edit-check" scope="row">
+            <?php if(!$site->date_approved):?>
+            <input type="checkbox" name="sites[]" value="<?php echo $site->id; ?>" />
+            <?php endif;?>
+        </td>
         <td>
             <span class='title'><a href='<?php echo $site->url; ?>'><?php echo $site->title; ?></a></span>
+        </td>
+        <td><?php echo $site->affiliation; ?></td>
+        <td>
+            <?php echo $site->admin_name; ?>
             <ul class='action-links group'>
                 <li class='details-link'><a href='mailto: <?php echo $site->admin_email; ?>'>Email admin</a></li>
-            </ul>
+            </ul>  
         </td>
-        <td><?php echo $site->description; ?></td>
-        <td><?php echo $site->author; ?></td>
-        <td><?php echo $site->copyright_info; ?></td>
         <td><?php echo $site->last_import; ?></td>
         <td>
-        <?php if(!$site->added): ?>
+        <?php if(!$site->date_approved): ?>
             <span class='approve' id='approve-<?php echo $site->id; ?>'>Approve</span>
         <?php else: ?>
-            <?php echo $site->added; ?>
+            <?php echo $site->date_approved; ?>
         <?php endif; ?>
         </td>
         </tr>

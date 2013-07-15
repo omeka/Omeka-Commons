@@ -28,8 +28,8 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
         parent::setUp();
         require_once(SITES_PLUGIN_DIR . '/models/SiteContext/Table/Collection.php');
         require_once(SITES_PLUGIN_DIR . '/models/SiteContext/Table/Exhibit.php');
-        require_once(SITES_PLUGIN_DIR . '/models/SiteContext/Table/ExhibitSection.php');
-        require_once(SITES_PLUGIN_DIR . '/models/SiteContext/Table/ExhibitSectionPage.php');
+        //require_once(SITES_PLUGIN_DIR . '/models/SiteContext/Table/ExhibitSection.php');
+        //require_once(SITES_PLUGIN_DIR . '/models/SiteContext/Table/ExhibitSectionPage.php');
     }
     
     /*

@@ -7,12 +7,33 @@ class Table_Site extends Omeka_Db_Table
         if(isset($params['random'])) {
             $select = $this->orderSelectByRandom($select);
         }
-        if(isset($params['unapproved'])) {
-            $select->where("`added` IS NULL");
-        }
         if(isset($params['approved'])) {
-            $select->where("`added` IS NOT NULL");
+            if($params['approved'] == 'true') {
+                $select->where("`date_approved` IS NOT NULL");
+            } else {
+                $select->where("`date_approved` IS NULL");
+            }
+        }
+        
+        if(isset($params['title']) && $params['title'] != '') {
+            $title = $params['title'];
+            $select->where("title LIKE ?", '%' . $params['title'] . '%');
+            unset($params['title']); //so the parent filters won't hit this
+        }
+        
+        if(isset($params['admin_name']) && $params['admin_name'] != '') {
+            $admin_name = $params['admin_name'];
+            $select->where("admin_name LIKE ?", '%' . $params['admin_name'] . '%');
+            unset($params['admin_name']); //so the parent filters won't hit this
+        }
+        
+        if(isset($params['affiliation']) && $params['affiliation'] != '') {
+            $select->where('affiliation LIKE ?', '%' . $params['affiliation'] . '%');
         }        
+        //don't let search params go to the parent filter
+        unset($params['affiliation']);
+        unset($params['title']);
+        unset($params['admin_name']);
         parent::applySearchFilters($select, $params);
         return $select;
     }
@@ -51,7 +72,7 @@ class Table_Site extends Omeka_Db_Table
     protected function recordFromData($data)
     {
         $record = parent::recordFromData($data);
-        $record->branding = unserialize($record->branding);
+        $record->commons_settings = unserialize($record->commons_settings);
         return $record;
     }
 }

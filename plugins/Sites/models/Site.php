@@ -39,6 +39,13 @@ class Site extends Omeka_Record_AbstractRecord
         $this->commons_settings = serialize($this->commons_settings);
     }
 
+    protected function afterSave($args)
+    {
+        $this->setSearchTextTitle($this->title);
+        $this->addSearchText($this->description);
+        $this->addSearchText($this->content_summary);
+    }    
+    
     public function getSiteAggregation()
     {
         if($this->site_aggregation_id) {

@@ -66,23 +66,11 @@ function sites_random_site_item($site)
 
 function sites_site_logo($site)
 {
-    if(isset($site->branding['logo'])) {
-        return "<img id='sites-logo' src='" . $site->branding['logo'] . "'/>";
+    if(isset($site->commons_settings['logo'])) {
+        return "<img id='sites-logo' src='" . $site->commons_settings['logo'] . "'/>";
     }
     return '';
 }
 
-/**
- * get the site's banner image from its branding info
- *
- * @return string the <img> to display
- */
 
-function sites_site_banner($site)
-{
-    if(isset($site->branding['banner'])) {
-        return "<img id='sites-banner' src='" . $site->branding['banner'] . "'/>";
-    }
-    return '';
-}
 
