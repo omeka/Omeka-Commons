@@ -113,12 +113,24 @@ class SitesPlugin extends Omeka_Plugin_AbstractPlugin
           `copyright_info` text,
           `author_info` text NULL,
           `commons_settings` text NULL,
-          `omeka_version` text NOT NULL
+          `omeka_version` text NOT NULL,
           PRIMARY KEY (`id`)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
         ";
         $db->query($sql);
+
+        $sql = "
+        CREATE TABLE IF NOT EXISTS `$db->SiteAggregation` (
+        `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+        `name` text NULL,
+        `description` text NULL,
+        PRIMARY KEY (`id`)
+        ) ENGINE=MyISAM CHARACTER SET utf8 COLLATE utf8_unicode_ci
+        ";
+        
+        $db->query($sql);        
+        
         //SiteCollection table
         $sql = "
         CREATE TABLE IF NOT EXISTS `$db->SiteContextCollection` (
