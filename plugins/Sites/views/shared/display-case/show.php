@@ -5,6 +5,7 @@ echo head(array('title' => $site->title , 'bodyclass' => $bodyclass));
 ?>
 
 <div id="primary">
+<?php echo flash(); ?>
 <h1><?php echo $site->title; ?></h1>
 <div style='float:right' id='sites-logo'>
 <?php echo sites_site_logo($site); ?>

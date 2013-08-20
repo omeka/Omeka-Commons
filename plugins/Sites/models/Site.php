@@ -14,7 +14,7 @@ class Site extends Omeka_Record_AbstractRecord
     public $join_reason;
     public $title;
     public $description;
-    public $key;
+    public $api_key;
     public $date_applied;
     public $date_approved;
     public $last_import;

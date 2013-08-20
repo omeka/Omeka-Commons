@@ -35,12 +35,14 @@ class Table_Site extends Omeka_Db_Table
         unset($params['title']);
         unset($params['admin_name']);
         parent::applySearchFilters($select, $params);
+        debug(print_r($params, true));
         return $select;
     }
     
     public function findByKey($key)
     {
         $select = $this->getSelectForFindBy(array('api_key'=>$key));
+        debug($select);
         return $this->fetchObject($select);        
     }
 

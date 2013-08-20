@@ -5,7 +5,7 @@ queue_css_string("p#add_site_key {cursor: pointer}");
 echo head($head);
 
 ?>
-
+<?php echo flash(); ?>
 
 <?php echo $form; ?>
 

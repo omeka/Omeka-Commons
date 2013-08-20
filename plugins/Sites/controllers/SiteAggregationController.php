@@ -26,14 +26,15 @@ class Sites_SiteAggregationController extends Omeka_Controller_AbstractActionCon
                 if ($successMessage) {
                     $this->_helper->flashMessenger($successMessage, 'success');
                 }
-                
+                $errors = false;
                 //dig up the sites that correspond to the keys passed and add or delete
-                foreach($_POST['site_key'] as $siteKey) {                    
+                foreach($_POST['site_key'] as $key) {           
                     $site = $this->_helper->db->getTable('Site')->findByKey($key);
                     if($site) {
                         $site->site_aggregation_id = $record->id;
                         $site->save(false);                        
                     } else {
+                        $errors = true;
                         $this->_helper->flashMessenger("Key $key is not valid.", 'error');
                     }
                 }
@@ -43,8 +44,10 @@ class Sites_SiteAggregationController extends Omeka_Controller_AbstractActionCon
                     $site->site_aggregation_id = null;
                     $site->save(false);
                 }                
+                if(!$errors) {
+                    $this->_redirectAfterEdit($record);
+                }
                 
-                $this->_redirectAfterEdit($record);
             // Flash an error if the record does not validate.
             } else {
                 $this->_helper->flashMessenger($record->getErrors());
@@ -131,7 +134,7 @@ class Sites_SiteAggregationController extends Omeka_Controller_AbstractActionCon
             
             $form .= "<div class='input-block'>";
             $form .= "<label>{$site->title}</label>";
-            $form .= $this->view->formText('site_key[]', $site->key, array('id'=>null, 'class'=>'site_keys'));
+            $form .= $this->view->formText('site_key[]', $site->api_key, array('id'=>null, 'class'=>'site_keys'));
             $form .= "</div>";
         }            
         $form .= "<div class='input-block'>";
